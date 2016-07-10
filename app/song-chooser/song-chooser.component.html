@@ -1,0 +1,17 @@
+foo some 
+stuff 
+here
+
+<div *ngIf="!isHidden" id="song-select-row" class="row text-center">
+  <div class="col-md-6 col-md-offset-2">
+      <select [(ngModel)]="selectedSongName" name="song-select" class="form-control">
+          <option value="">Select a song...</option>
+          <option *ngFor="let name of songNames" value="{{name}}">{{name}}</option>
+      </select>
+  </div>
+  <div class="col-md-2">
+      <button class="btn btn-primary btn-block" (click)="pickSong()">Go!</button>
+  </div>
+</div>
+
+song-chooser isHidden? {{isHidden}}
