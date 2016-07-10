@@ -8,5 +8,4 @@ import { MixerComponent } from './mixer';
   styleUrls: ['app.component.css']
 })
 export class AppComponent {
-  title = 'app works!';
 }
