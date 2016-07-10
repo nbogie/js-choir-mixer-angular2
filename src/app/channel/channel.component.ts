@@ -9,7 +9,8 @@ import { ChannelInfo } from '../channel-info';
 export class ChannelComponent implements OnInit {
   
   @Input() channelInfo: ChannelInfo;
-
+  @Input() context: AudioContext;
+  
   constructor() {}
 
   ngOnInit() {
