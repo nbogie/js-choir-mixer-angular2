@@ -8,6 +8,7 @@
 <div class="row text-center">
     <p>Play multiple mp3s with web audio, point-marking, volume-mixing, looping, mute/solo groups... </p>
     <h2>{{songTitle}}</h2>
+    
 
     <button  class="btn btn-danger" (click)="demoPlay()">Demo Play</button>
     All loaded: {{allLoaded}}
@@ -17,7 +18,7 @@
 <div class="row">
 
     <div id="controlset" class="col-md-6 col-lg-8">
-        <app-channel *ngFor="let channel of channels"></app-channel>
+        <app-channel *ngFor="let channelInfo of channelInfos" [channelInfo]="channelInfo"></app-channel>
     </div>
 
     <div class="col-md-6 col-lg-4">
