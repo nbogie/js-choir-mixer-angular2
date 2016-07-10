@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ChannelComponent } from '../channel/';
-import { MyBufferLoader } from '../my-buffer-loader';
+import { BufferLoader } from '../buffer-loader';
 import { NgZone} from '@angular/core'
 
 @Component({
@@ -12,7 +12,7 @@ import { NgZone} from '@angular/core'
 })
 export class MixerComponent implements OnInit {
   channels: string[];
-  bufferLoader: MyBufferLoader;
+  bufferLoader: BufferLoader;
   urlList: string[] = ["/sounds-free/close_to_me/bass.mp3", "/sounds-free/close_to_me/drums.mp3"];
   context: any;
   bufferList: AudioBuffer[];
@@ -48,7 +48,7 @@ export class MixerComponent implements OnInit {
     //window.AudioContext = window.AudioContext||window.webkitAudioContext;
     this.context = new AudioContext();
     console.log("audio context is " + this.context + JSON.stringify(this.context));
-    this.bufferLoader = new MyBufferLoader(this, this.context, this.urlList, this.finishedLoadingAllBuffers);
+    this.bufferLoader = new BufferLoader(this, this.context, this.urlList, this.finishedLoadingAllBuffers);
     this.bufferLoader.loadAll();
   }
 

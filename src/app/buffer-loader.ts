@@ -1,4 +1,4 @@
-export class MyBufferLoader {
+export class BufferLoader {
   urlList: string[];
   onAllLoadedFn: any; // a function
   bufferList: any[]; 
