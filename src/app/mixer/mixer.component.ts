@@ -13,22 +13,42 @@ export class MixerComponent implements OnInit {
   bufferLoader: MyBufferLoader;
   urlList: string[] = ["/sounds-free/close_to_me/bass.mp3", "/sounds-free/close_to_me/drums.mp3"];
   context: any;
+  bufferList: AudioBuffer[];
+  allLoaded: boolean = false;
+  title = "hello";
 
   constructor(){}
 
-  finishedLoadingAllBuffers(bufferList) {
-    console.log("finished loading all buffers." + bufferList);
-    //gBufferList = bufferList;
-    // Create three sources and play them both together.
-    //createAllGainedSourcesOnBuffers(bufferList);
-    //createControlsInDOM(bufferList);
-    //play();
+  demoPlay() {
+//    console.assert(this.bufferList != null, "bufferList should not be null");
+//    console.assert(this.bufferList.length > 0, "bufferList should not be empty");
+  }
+
+  finishedLoadingAllBuffers(loadedAudioBufferList) {
+    //console.assert(this.title == "hello", "this.title should be 'hello'");
+
+    this.bufferList = loadedAudioBufferList;
+    this.allLoaded = true;
+
+    console.log("finished loading all buffers." + this.bufferList);
+
+    let buffer = this.bufferList[0];
+    let src = this.context.createBufferSource();
+    src.playbackRate.value = 1;
+    src.buffer = buffer;
+    src.connect(this.context.destination);
+    src.start();
+
   }
 
   ngOnInit() {
     this.channels = ["one", "two", "three"];
+    ////TODO necessary for some browsers?
+    //console.log(window.AudioContext);
+    //console.log(window.webkitAudioContext);
+    //window.AudioContext = window.AudioContext||window.webkitAudioContext;
     this.context = new AudioContext();
-
+    console.log("audio context is " + this.context + JSON.stringify(this.context));
     this.bufferLoader = new MyBufferLoader(this.context, this.urlList, this.finishedLoadingAllBuffers);
     this.bufferLoader.loadAll();
   }
