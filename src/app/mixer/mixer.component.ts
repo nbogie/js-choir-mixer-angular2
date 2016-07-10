@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ChannelComponent } from '../channel/';
 import { BufferLoader } from '../buffer-loader';
-import { NgZone} from '@angular/core'
 
 @Component({
   moduleId: module.id,
