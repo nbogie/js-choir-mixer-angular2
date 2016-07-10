@@ -11,10 +11,3 @@ import {
 } from '@angular/core/testing';
 
 import { MixerComponent } from './mixer.component';
-
-describe('Component: Mixer', () => {
-  it('should create an instance', () => {
-    let component = new MixerComponent();
-    expect(component).toBeTruthy();
-  });
-});
