@@ -13,7 +13,11 @@ import { NgZone} from '@angular/core'
 export class MixerComponent implements OnInit {
   channels: string[];
   bufferLoader: BufferLoader;
-  urlList: string[] = ["/sounds-free/close_to_me/bass.mp3", "/sounds-free/close_to_me/drums.mp3"];
+  urlList: string[] = ["/sounds-free/close_to_me/bass.mp3", 
+                       "/sounds-free/close_to_me/drums.mp3",
+                       "/sounds-free/close_to_me/xylo.mp3",
+                       "/sounds-free/close_to_me/brass.mp3",
+                       ];
   context: any;
   bufferList: AudioBuffer[];
   allLoaded: boolean = false;
@@ -24,12 +28,14 @@ export class MixerComponent implements OnInit {
   demoPlay() {
 //    console.assert(this.bufferList != null, "bufferList should not be null");
 //    console.assert(this.bufferList.length > 0, "bufferList should not be empty");
-      let buffer = this.bufferList[0];
-      let src = this.context.createBufferSource();
-      src.playbackRate.value = 1;
-      src.buffer = buffer;
-      src.connect(this.context.destination);
-      src.start();
+      this.bufferList.forEach(b => {
+        let src = this.context.createBufferSource();
+        src.playbackRate.value = 1;
+        src.buffer = b;
+        src.connect(this.context.destination);
+        src.start();
+        }
+      );
     }
 
   finishedLoadingAllBuffers(loadedAudioBufferList) {
