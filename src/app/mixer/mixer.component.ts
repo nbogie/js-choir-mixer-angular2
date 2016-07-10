@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { ChannelComponent } from '../channel/';
 import { BufferLoader } from '../buffer-loader';
 import { SongChooserComponent } from '../song-chooser/';
+import { Http } from '@angular/http';
+import 'rxjs/add/operator/toPromise';
 
 @Component({
   moduleId: module.id,
@@ -23,7 +25,9 @@ export class MixerComponent implements OnInit {
   allLoaded: boolean = false;
   title = "hello";
   mixer: any; //hack. remove.
-  constructor(){}
+  songTitle: string;
+
+  constructor(private http: Http){}
 
   demoPlay() {
 //    console.assert(this.bufferList != null, "bufferList should not be null");
@@ -37,8 +41,16 @@ export class MixerComponent implements OnInit {
         }
       );
   }
-  choseSong(fullPathToJSON) {
+  choseSong(songInfo) {
+    let fullPathToJSON = songInfo.fullpath;
       console.log("song chosen: " + JSON.stringify(fullPathToJSON));
+      this.http.get(fullPathToJSON).
+        toPromise().
+        then(resp => { 
+          let json = resp.json();
+          this.songTitle = json.title;
+        }).
+        catch(e=>console.log("err: "+e));
       
       /*
     function handleJSON(response) {
