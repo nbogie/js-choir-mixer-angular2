@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ChannelComponent } from '../channel/';
+import { MyBufferLoader } from '../my-buffer-loader';
+import { NgZone} from '@angular/core'
 
 @Component({
   moduleId: module.id,
@@ -16,29 +18,26 @@ export class MixerComponent implements OnInit {
   bufferList: AudioBuffer[];
   allLoaded: boolean = false;
   title = "hello";
-
+  mixer: any; //hack. remove.
   constructor(){}
 
   demoPlay() {
 //    console.assert(this.bufferList != null, "bufferList should not be null");
 //    console.assert(this.bufferList.length > 0, "bufferList should not be empty");
-  }
+      let buffer = this.bufferList[0];
+      let src = this.context.createBufferSource();
+      src.playbackRate.value = 1;
+      src.buffer = buffer;
+      src.connect(this.context.destination);
+      src.start();
+    }
 
   finishedLoadingAllBuffers(loadedAudioBufferList) {
-    //console.assert(this.title == "hello", "this.title should be 'hello'");
-
-    this.bufferList = loadedAudioBufferList;
-    this.allLoaded = true;
-
-    console.log("finished loading all buffers." + this.bufferList);
-
-    let buffer = this.bufferList[0];
-    let src = this.context.createBufferSource();
-    src.playbackRate.value = 1;
-    src.buffer = buffer;
-    src.connect(this.context.destination);
-    src.start();
-
+    //hack.  we're using this.mixer because 'this' isn't set to the mixer but to the buffer loader. 
+    this.mixer.bufferList = loadedAudioBufferList;
+    console.log("finished loading all buffers." + this.mixer.bufferList);
+    this.mixer.allLoaded = true;
+    //TODO: ping angular to refresh.  we've done this stuff out of zone, it seems
   }
 
   ngOnInit() {
@@ -49,62 +48,8 @@ export class MixerComponent implements OnInit {
     //window.AudioContext = window.AudioContext||window.webkitAudioContext;
     this.context = new AudioContext();
     console.log("audio context is " + this.context + JSON.stringify(this.context));
-    this.bufferLoader = new MyBufferLoader(this.context, this.urlList, this.finishedLoadingAllBuffers);
+    this.bufferLoader = new MyBufferLoader(this, this.context, this.urlList, this.finishedLoadingAllBuffers);
     this.bufferLoader.loadAll();
-  }
-
-}
-
-export class MyBufferLoader {
-  urlList: string[];
-  onAllLoadedFn: any; // a function
-  bufferList: any[]; 
-  loadCount: number = 0;
-  
-  constructor(private context: any, urlList:string[], allLoadedFn) {
-    this.urlList = urlList;
-    this.bufferList = new Array(urlList.length);
-    this.onAllLoadedFn = allLoadedFn;
-  }
-
-
-  loadOneBuffer(url, index) {
-
-    let request = new XMLHttpRequest();
-    request.open("GET", url, true);
-    request.responseType = "arraybuffer";
-
-    let loader = this;
-    request.onload = function () {
-        loader.context.decodeAudioData(
-            request.response, 
-            function (audioBuffer) {
-              console.log("one decode finished, for good or bad: "+audioBuffer);
-                if (!audioBuffer) {
-                    alert('error decoding file data: ' + url);
-                    return;
-                }
-                loader.bufferList[index] = audioBuffer;
-                if (++loader.loadCount == loader.urlList.length){
-                    loader.onAllLoadedFn(loader.bufferList);
-                }
-            },
-            function (error) {
-                console.error('decodeAudioData error', error);
-            }
-        );
-    };
-
-    request.onerror = function () {
-        alert('BufferLoader: XHR error');
-    };
-
-    request.send();
-
-  }
-
-  loadAll() {
-    this.urlList.forEach((url, ix) => this.loadOneBuffer(url, ix));
   }
 
 }
