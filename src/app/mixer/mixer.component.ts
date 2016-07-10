@@ -1,11 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { ChannelComponent } from '../channel/';
 import { BufferLoader } from '../buffer-loader';
+import { SongChooserComponent } from '../song-chooser/';
 
 @Component({
   moduleId: module.id,
   selector: 'app-mixer',
-  directives: [ChannelComponent],
+  directives: [ChannelComponent, SongChooserComponent],
   templateUrl: 'mixer.component.html',
   styleUrls: ['mixer.component.css']
 })
@@ -35,8 +36,28 @@ export class MixerComponent implements OnInit {
         src.start();
         }
       );
+  }
+  choseSong(fullPathToJSON) {
+      console.log("song chosen: " + JSON.stringify(fullPathToJSON));
+      
+      /*
+    function handleJSON(response) {
+        var json = response;
+        gSongTitle = json.title || "Untitled";
+        $("#songTitle").html(gSongTitle);
+        gTrackNames = json.tracks.map(function (t) {
+            return t.name;
+        });
+        gSectionStarts = json.sectionStarts || [];
+        recreateSectionStartsInDOM();
+        finishInit();
     }
 
+    $.getJSON(chosenSongInfo.fullpath, handleJSON);
+    */
+
+  }
+  
   finishedLoadingAllBuffers(loadedAudioBufferList) {
     //hack.  we're using this.mixer because 'this' isn't set to the mixer but to the buffer loader. 
     this.mixer.bufferList = loadedAudioBufferList;

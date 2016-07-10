@@ -3,16 +3,7 @@
     <h1>Neill's Choir Mixer <i class="fa fa-music"></i></h1>
 </div>
 
-<div id="song-select-row" class="row text-center">
-    <div class="col-md-6 col-md-offset-2">
-        <select name="song-select" id="song-select" class="form-control">
-            <option value="">Select a song...</option>
-        </select>
-    </div>
-    <div class="col-md-2">
-        <button class="btn btn-primary btn-block" id="pickSongButton">Go!</button>
-    </div>
-</div>
+<app-song-chooser (choseSong)="choseSong($event)"></app-song-chooser>
 
 <div class="row text-center">
     <p>Play multiple mp3s with web audio, point-marking, volume-mixing, looping, mute/solo groups... </p>
@@ -21,6 +12,7 @@
     <button  class="btn btn-danger" (click)="demoPlay()">Demo Play</button>
     All loaded: {{allLoaded}}
 </div>
+
 
 <div class="row">
 
