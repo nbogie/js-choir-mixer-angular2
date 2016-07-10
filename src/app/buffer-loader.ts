@@ -6,7 +6,8 @@ export class BufferLoader {
   
   constructor(private mixer: any, private context: any, urlList:string[], allLoadedFn) {
     this.urlList = urlList;
-    this.bufferList = new Array(urlList.length);
+    this.bufferList = new Array(urlList.length);//we'll store them in place as they come up.  
+                                                //A dictionary might be better.
     this.onAllLoadedFn = allLoadedFn;
   }
 
@@ -15,7 +16,7 @@ export class BufferLoader {
 
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
-    request.responseType = "arraybuffer";
+    request.responseType = "arraybuffer";  //this is why we can't use @angular/http stuff.
 
     let loader = this;
     request.onload = function () {
