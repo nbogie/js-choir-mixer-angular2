@@ -47,46 +47,7 @@ var gUseZeroCrossing;
 
 
 
-function getSongInfos() {
-    var songDirsFree = ["close_to_me", "he_has_done_marvelous_things"];
-    var songDirs = ["deep_river", "as", "great_is_thy_faithfulness", "how_great_thou_art",
-                    "pretty_hurts", "motherless_child", "wayfaring_stranger", "get_lucky_the_few", "hymn_of_acxiom_the_few",
-                    "good_news", "africa", "am_i_wrong", "do_you_hear"];
 
-    function makePathToSongMetaData(root, name) {
-        return root + name + "/index.json";
-    }
-    var allSongInfos = [[songDirsFree, 'sounds-free/'], [songDirs, 'sounds/']]
-        .map(function (arr) {
-            var names = arr[0],
-                root = arr[1];
-            return names.map(function (name) {
-                return {
-                    root: root,
-                    name: name,
-                    fullpath: makePathToSongMetaData(root, name)
-                };
-            });
-        });
-    return [].concat.apply([], allSongInfos);
-}
-
-function pickSong() {
-    var selectedSongName = $('#song-select').val();
-    var sis = getSongInfos();
-    var selectedSongInfo = sis.find(
-        function(si) {
-            return si.name == selectedSongName;
-        }
-    );
-    if (selectedSongInfo) {
-        initWithSongChoice(selectedSongInfo);
-        $('#song-select-row').hide();
-    } else {
-        //no song picked
-        console.log("No (or unknown) song picked.");
-    }
-}
 
 
 
@@ -96,9 +57,6 @@ function initBeforeSongChoice() {
     // Fix up prefixing
     window.AudioContext = window.AudioContext || window.webkitAudioContext;
     registerDOMControls();
-    getSongInfos().forEach(function(si) {
-        $("<option/>").val(si.name).text(si.name).appendTo("#song-select");
-    });
 }
 
 function initWithSongChoice(chosenSongInfo) {
