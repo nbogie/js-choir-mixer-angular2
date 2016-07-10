@@ -12,63 +12,62 @@ export class MixerComponent implements OnInit {
   channels: string[];
   bufferLoader: MyBufferLoader;
   urlList: string[] = ["/sounds-free/close_to_me/bass.mp3", "/sounds-free/close_to_me/drums.mp3"];
+  context: any;
+
+  constructor(){}
+
+  finishedLoadingAllBuffers(bufferList) {
+    console.log("finished loading all buffers." + bufferList);
+    //gBufferList = bufferList;
+    // Create three sources and play them both together.
+    //createAllGainedSourcesOnBuffers(bufferList);
+    //createControlsInDOM(bufferList);
+    //play();
+  }
 
   ngOnInit() {
     this.channels = ["one", "two", "three"];
+    this.context = new AudioContext();
 
-    this.bufferLoader = new MyBufferLoader(this.urlList);
+    this.bufferLoader = new MyBufferLoader(this.context, this.urlList, this.finishedLoadingAllBuffers);
     this.bufferLoader.loadAll();
   }
 
 }
 
 export class MyBufferLoader {
-  context: any;  // and audio context
   urlList: string[];
-  onloadFn: any; // a function
+  onAllLoadedFn: any; // a function
   bufferList: any[]; 
   loadCount: number = 0;
   
-  constructor(urlList:string[]) {
+  constructor(private context: any, urlList:string[], allLoadedFn) {
     this.urlList = urlList;
+    this.bufferList = new Array(urlList.length);
+    this.onAllLoadedFn = allLoadedFn;
   }
 
-
-  dlog(msg) {
-    console.log(msg);
-  }
 
   loadOneBuffer(url, index) {
-    this.dlog("loadOneBuffer: not implemented");
-    this.loadCount++;
-  }
 
-  loadAll() {
-    this.urlList.forEach((url, ix) => this.loadOneBuffer(url, ix));
-  }
-
-}
-/*
-BufferLoader.prototype.loadBuffer = function (url, index) {
-    // Load buffer asynchronously
-    var request = new XMLHttpRequest();
+    let request = new XMLHttpRequest();
     request.open("GET", url, true);
     request.responseType = "arraybuffer";
 
-    var loader = this;
-
+    let loader = this;
     request.onload = function () {
-        // Asynchronously decode the audio file data in request.response
         loader.context.decodeAudioData(
-            request.response,
-            function (buffer) {
-                if (!buffer) {
+            request.response, 
+            function (audioBuffer) {
+              console.log("one decode finished, for good or bad: "+audioBuffer);
+                if (!audioBuffer) {
                     alert('error decoding file data: ' + url);
                     return;
                 }
-                loader.bufferList[index] = buffer;
-                if (++loader.loadCount == loader.urlList.length)
-                    loader.onload(loader.bufferList);
+                loader.bufferList[index] = audioBuffer;
+                if (++loader.loadCount == loader.urlList.length){
+                    loader.onAllLoadedFn(loader.bufferList);
+                }
             },
             function (error) {
                 console.error('decodeAudioData error', error);
@@ -81,5 +80,11 @@ BufferLoader.prototype.loadBuffer = function (url, index) {
     };
 
     request.send();
-};
-*/
+
+  }
+
+  loadAll() {
+    this.urlList.forEach((url, ix) => this.loadOneBuffer(url, ix));
+  }
+
+}
