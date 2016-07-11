@@ -16,4 +16,11 @@ export class ChannelComponent implements OnInit {
   ngOnInit() {
   }
 
+  play() {
+      let src = this.context.createBufferSource();
+      src.playbackRate.value = 1;
+      src.buffer = this.channelInfo.buffer;
+      src.connect(this.context.destination);
+      src.start();
+  }
 }

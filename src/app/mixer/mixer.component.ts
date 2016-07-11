@@ -27,18 +27,6 @@ export class MixerComponent implements OnInit {
 
   constructor(private http: Http){}
 
-  demoPlay() {
-//    console.assert(this.bufferList != null, "bufferList should not be null");
-//    console.assert(this.bufferList.length > 0, "bufferList should not be empty");
-      this.bufferList.forEach(b => {
-        let src = this.context.createBufferSource();
-        src.playbackRate.value = 1;
-        src.buffer = b;
-        src.connect(this.context.destination);
-        src.start();
-        }
-      );
-  }
   choseSong(songInfo) {
     this.songInfo = songInfo;
     let fullPathToJSON = songInfo.fullpath;
@@ -52,19 +40,16 @@ export class MixerComponent implements OnInit {
           let urlList = json.tracks.map(t => `${songInfo.root}${songInfo.name}/${t.name}`);
           this.bufferLoader = new BufferLoader(this, this.context, urlList, this.finishedLoadingAllBuffers);
           this.bufferLoader.loadAll();
+          let sectionStarts = json.sectionStarts || [];
+
+          //recreateSectionStartsInDOM();
         }).
         catch(e=>console.log("err: "+e));
       
       /*
     function handleJSON(response) {
-        var json = response;
-        gSongTitle = json.title || "Untitled";
-        $("#songTitle").html(gSongTitle);
-        gTrackNames = json.tracks.map(function (t) {
-            return t.name;
-        });
-        gSectionStarts = json.sectionStarts || [];
-        recreateSectionStartsInDOM();
+
+
         finishInit();
     }
 
