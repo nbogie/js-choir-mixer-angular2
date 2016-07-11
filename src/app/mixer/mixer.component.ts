@@ -50,6 +50,14 @@ export class MixerComponent implements OnInit {
   stop() {
     this.shouldPlay = false;
   }
+  
+  clear() {
+    console.log("todo: clear mix");
+  }
+
+  randomise() {
+    console.log("todo: randomise mix");
+  }
 
   choseSong(songInfo) {
     this.songInfo = songInfo;
