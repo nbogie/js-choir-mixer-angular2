@@ -15,7 +15,7 @@ export class ChannelComponent implements OnInit {
   @Input() channelInfo: ChannelInfo;
   @Input() context: AudioContext;
   isMuted: boolean = false;
-  srcNode: AudioNode;
+  srcNode: AudioBufferSourceNode;
   gainNode: GainNode;
 
   //fft stuff
@@ -35,7 +35,7 @@ export class ChannelComponent implements OnInit {
       } else {
           if (this._shouldPlay){
               this._shouldPlay = false;
-              //todo: stop
+              this.stop();
           }
       }
   }
@@ -47,7 +47,42 @@ export class ChannelComponent implements OnInit {
   ngOnInit() {
   }
 
+  stop() {
+    //gPlayStartedTime = -1;
+    //TODO: deal with not playing, or not even initialised.
+    if (this.srcNode) {
+        this.srcNode.stop(0);
+        this.srcNode = null;//TODO: any recycling necessary to allow srcNode to be recycled
+                            //gain node maybe still holding onto it, or destination...
+        this.gainNode.disconnect();
+    }
+  }
+  muteButtonClicked() {
+      this.isMuted = !this.isMuted;
+      if (this.isMuted) {
+          this.mute();
+      } else {
+          this.unmute();
+      }
+  }
+
+  soloButtonClicked() {
+      console.error("NOT IMPLEMENTED: channel#soloButtonClicked()");
+  }
+
+  mute() {
+      this.setGain(0); 
+  }
+
+  unmute() {
+      this.setGain(1); //TODO: set it back to what the slider says it should be 
+  }
+
   play() {
+      //TODO: deal with already playing. 
+      //  free the old nodes where necessary, 
+      //  create new ones, and 
+      //  start playing again
       let src = this.context.createBufferSource();
       src.buffer = this.channelInfo.buffer;
       src.playbackRate.value = 1;
@@ -75,8 +110,15 @@ export class ChannelComponent implements OnInit {
       this.analyser = analyser;
       this.dataArray = dataArray;          
   }
+  
+  volumeSliderChanged(ev) {
+    console.log(`volume slider changed to ${ev.target.value}`, ev);
+    console.assert(ev  && ev.target && ev.target.value && ev.target.value >= 0 && ev.target.value <= 100, "null or bad value ev.target.value");
+    this.setGain(ev.target.value / 100 * 1.0);
+  }
 
   setGain(v: number) {
+    //TODO: don't allow if no gainNode or the channel is muted.
     this.gainNode.gain.cancelScheduledValues(this.context.currentTime);
     this.gainNode.gain.value = v;
     //TODO: update slider?
