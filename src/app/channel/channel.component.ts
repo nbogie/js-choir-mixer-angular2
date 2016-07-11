@@ -96,7 +96,8 @@ export class ChannelComponent implements OnInit {
                   this.drawWaveform(canvasCtx, scaledVals, stripeWidth, canvasWidth, canvasHeight, yOffset);
               }
           }
-      } else { // no fft
+      } else { // unknown FFT type
+          console.error("ERROR: Unknown FFTType: " + this.fftConfig.type);
       }
   }
 
