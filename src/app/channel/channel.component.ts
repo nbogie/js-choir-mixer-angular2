@@ -74,7 +74,7 @@ export class ChannelComponent implements OnInit {
       canvasCtx.fillStyle = 'white';
       canvasCtx.fillRect(0, 0, canvasWidth, canvasHeight);
 
-      if (this.fftConfig.type === FFTType.Spectrum) {
+      if (this.fftConfig.type == FFTType.Spectrum) {
           this.analyser.getByteFrequencyData(this.dataArray);
       } else {
           this.analyser.getByteTimeDomainData(this.dataArray);
@@ -85,9 +85,9 @@ export class ChannelComponent implements OnInit {
       let vertScale = canvasHeight / 256;
       let scaledVals = this.dataArray.map(v => scaledVals.push(v * vertScale))
 
-      if (this.fftConfig.type === FFTType.Spectrum) {
+      if (this.fftConfig.type == FFTType.Spectrum) {
           this.drawSpectrum(canvasCtx, scaledVals, stripeWidth, canvasWidth, canvasHeight, yOffset);
-      } else if (this.fftConfig.type === FFTType.Waveform) {
+      } else if (this.fftConfig.type == FFTType.Waveform) {
           if (this.signalAboveThreshold(this.dataArray)) {
               if (this.useZeroCrossing) {
                   let zeroCross = this.findFirstPositiveZeroCrossing(this.dataArray, canvasWidth);
