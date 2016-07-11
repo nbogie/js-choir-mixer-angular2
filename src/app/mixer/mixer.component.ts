@@ -7,6 +7,7 @@ import { Http } from '@angular/http';
 import 'rxjs/add/operator/toPromise';
 import { ChannelInfo } from '../channel-info';
 import { Section } from '../section';
+import { FFTConfig } from '../fft-config';
 
 @Component({
   moduleId: module.id,
@@ -26,6 +27,7 @@ export class MixerComponent implements OnInit {
   songTitle: string;
   songInfo: any; //parsed json
   sections: Section[];
+  fftConfig: FFTConfig = FFTConfig.simpleConfig().waveform;
 
   constructor(private http: Http){}
 
