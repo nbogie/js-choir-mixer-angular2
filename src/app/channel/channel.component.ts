@@ -17,15 +17,32 @@ export class ChannelComponent implements OnInit {
   isMuted: boolean = false;
   srcNode: AudioNode;
   gainNode: GainNode;
-  
+
   //fft stuff
   analyser: any;
-  @Input() fftConfig:FFTConfig; //tighten up  
+  @Input() fftConfig:FFTConfig; 
   dataArray: Uint8Array;
   canvasElem: any; //ElementRef?  height, width, getContext() don't exist on ElementRef, but on canvas...
   useZeroCrossing: boolean;
 
-  constructor() {}
+  _shouldPlay: boolean;
+
+  @Input() set shouldPlay(v: boolean) {
+      if (v && !this._shouldPlay) {          
+          this._shouldPlay = true;
+           //TODO: not all of the inputs may yet have been set for first time! 
+          this.play();
+      } else {
+          if (this._shouldPlay){
+              this._shouldPlay = false;
+              //todo: stop
+          }
+      }
+  }
+  
+  constructor() {
+    console.log("channel ctor");
+  }
 
   ngOnInit() {
   }
@@ -34,6 +51,7 @@ export class ChannelComponent implements OnInit {
       let src = this.context.createBufferSource();
       src.buffer = this.channelInfo.buffer;
       src.playbackRate.value = 1;
+      src.loop = true;
 
       let gainNode = this.context.createGain();
       gainNode.gain.value = 1;
@@ -96,7 +114,7 @@ export class ChannelComponent implements OnInit {
                   this.drawWaveform(canvasCtx, scaledVals, stripeWidth, canvasWidth, canvasHeight, yOffset);
               }
           }
-      } else { // unknown FFT type
+      } else { 
           console.error("ERROR: Unknown FFTType: " + this.fftConfig.type);
       }
   }

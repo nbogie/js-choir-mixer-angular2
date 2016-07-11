@@ -1,7 +1,3 @@
-foo some 
-stuff 
-here
-
 <div *ngIf="!isHidden" id="song-select-row" class="row text-center">
   <div class="col-md-6 col-md-offset-2">
       <select [(ngModel)]="selectedSongName" name="song-select" class="form-control">
@@ -13,5 +9,3 @@ here
       <button class="btn btn-primary btn-block" (click)="pickSong()">Go!</button>
   </div>
 </div>
-
-song-chooser isHidden? {{isHidden}}

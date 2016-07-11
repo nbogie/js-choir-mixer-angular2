@@ -22,14 +22,34 @@ export class MixerComponent implements OnInit {
   context: any;
   bufferList: AudioBuffer[];
   allLoaded: boolean = false;
-  title = "hello";
   mixer: any; //hack. remove.
   songTitle: string;
   songInfo: any; //parsed json
   sections: Section[];
-  fftConfig: FFTConfig = FFTConfig.simpleConfig().waveform;
+  fftConfig: FFTConfig;
+  shouldPlay: boolean = false;
 
-  constructor(private http: Http){}
+  that = this;
+
+  constructor(private http: Http){
+  }
+
+  ngOnInit() {
+    ////TODO necessary for some browsers?
+    //console.log(window.AudioContext);
+    //console.log(window.webkitAudioContext);
+    //window.AudioContext = window.AudioContext||window.webkitAudioContext;
+    this.context = new AudioContext();
+    this.fftConfig = FFTConfig.simpleConfig().waveform;
+  }
+
+  play() {
+    this.shouldPlay = true;
+  }
+  
+  stop() {
+    this.shouldPlay = false;
+  }
 
   choseSong(songInfo) {
     this.songInfo = songInfo;
@@ -48,16 +68,6 @@ export class MixerComponent implements OnInit {
         }).
         catch(e=>console.log("err: "+e));
       
-      /*
-    function handleJSON(response) {
-
-
-        finishInit();
-    }
-
-    $.getJSON(chosenSongInfo.fullpath, handleJSON);
-    */
-
   }
 
   private makeChannelInfoFromBuffer(b:AudioBuffer, ix:number):ChannelInfo{
@@ -75,15 +85,6 @@ export class MixerComponent implements OnInit {
     this.mixer.allLoaded = true;
     this.mixer.channelInfos = this.mixer.bufferList.map((b, ix) => this.mixer.makeChannelInfoFromBuffer(b, ix));
     //TODO: ping angular to refresh.  we've done this stuff out of zone, it seems
-  }
-
-  ngOnInit() {
-    ////TODO necessary for some browsers?
-    //console.log(window.AudioContext);
-    //console.log(window.webkitAudioContext);
-    //window.AudioContext = window.AudioContext||window.webkitAudioContext;
-    this.context = new AudioContext();
-    console.log("audio context is " + this.context + JSON.stringify(this.context));
   }
 
 }
