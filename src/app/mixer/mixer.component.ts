@@ -2,14 +2,16 @@ import { Component, OnInit } from '@angular/core';
 import { ChannelComponent } from '../channel/';
 import { BufferLoader } from '../buffer-loader';
 import { SongChooserComponent } from '../song-chooser/';
+import { SectionListComponent } from '../section-list/';
 import { Http } from '@angular/http';
 import 'rxjs/add/operator/toPromise';
 import { ChannelInfo } from '../channel-info';
+import { Section } from '../section';
 
 @Component({
   moduleId: module.id,
   selector: 'app-mixer',
-  directives: [ChannelComponent, SongChooserComponent],
+  directives: [ChannelComponent, SongChooserComponent, SectionListComponent],
   templateUrl: 'mixer.component.html',
   styleUrls: ['mixer.component.css']
 })
@@ -23,7 +25,7 @@ export class MixerComponent implements OnInit {
   mixer: any; //hack. remove.
   songTitle: string;
   songInfo: any; //parsed json
-
+  sections: Section[];
 
   constructor(private http: Http){}
 
@@ -40,9 +42,7 @@ export class MixerComponent implements OnInit {
           let urlList = json.tracks.map(t => `${songInfo.root}${songInfo.name}/${t.name}`);
           this.bufferLoader = new BufferLoader(this, this.context, urlList, this.finishedLoadingAllBuffers);
           this.bufferLoader.loadAll();
-          let sectionStarts = json.sectionStarts || [];
-
-          //recreateSectionStartsInDOM();
+          this.sections = json.sectionStarts || [];
         }).
         catch(e=>console.log("err: "+e));
       
