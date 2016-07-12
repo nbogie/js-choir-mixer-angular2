@@ -1,8 +1,10 @@
-export class ChannelInfo {  
+export class ChannelInfo {
+  id: number;  
   name: string;
   buffer: AudioBuffer;
 
-  constructor(buffer: AudioBuffer, name: string){
+  constructor(id: number, buffer: AudioBuffer, name: string){
+    this.id = id;
     this.name = name;
     this.buffer = buffer;
   }

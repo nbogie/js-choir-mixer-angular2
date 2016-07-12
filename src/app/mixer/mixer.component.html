@@ -15,7 +15,8 @@
 
     <div id="controlset" class="col-md-6 col-lg-8">
         <app-channel *ngFor="let channelInfo of channelInfos" 
-            [channelInfo]="channelInfo" 
+            [channelInfo]="channelInfo"
+            [mixerSubject]="mixerSubject" 
             [fftConfig]="fftConfig" 
             [shouldPlay]="shouldPlay"
             [context]="context">

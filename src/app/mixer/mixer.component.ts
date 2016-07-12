@@ -8,6 +8,9 @@ import 'rxjs/add/operator/toPromise';
 import { ChannelInfo } from '../channel-info';
 import { Section } from '../section';
 import { FFTConfig } from '../fft-config';
+import { CmdType, Command } from '../command';
+import { Subject } from 'rxjs/Subject';
+
 
 declare var _: any;
 
@@ -20,6 +23,7 @@ declare var _: any;
 })
 export class MixerComponent implements OnInit {
   channelInfos: ChannelInfo[];
+  mixerSubject: Subject<Command> = new Subject(); //to comm with children.
   bufferLoader: BufferLoader;
   context: any;
   bufferList: AudioBuffer[];
@@ -55,7 +59,7 @@ export class MixerComponent implements OnInit {
   
   clear() {
     console.log("todo: implement clear mix");
-    this.channelInfos.forEach(ci => null);
+    this.mixerSubject.next( { type: CmdType.ClearAll, data: null } );
   }
 
   randomise() {
@@ -63,12 +67,8 @@ export class MixerComponent implements OnInit {
     this.clear();
     let numToMute: number = _.random(1, this.channelInfos.length-1);    
     let channelsToMute: ChannelInfo[] = _.sample(this.channelInfos, numToMute);
-    channelsToMute.forEach(ci => console.log(`would mute: ${ci.name}`));
-    //channelsToMute.forEach(ci => ci.??? = true);
-      //TODO: how can we mute some channels?  we don't really have a good handle to them, other than the list of channelInfos
-      // and a channel component probably(*) can't watch for a change to only one property of its ChannelInfo object.
-      // we really want to just signal each relevant channel: "please mute yourself" 
-      //
+    let idsToMute = channelsToMute.map(ci => ci.id);
+    this.mixerSubject.next( { type: CmdType.MuteSome, data: idsToMute } );
   }
 
   choseSong(songInfo) {
@@ -89,11 +89,9 @@ export class MixerComponent implements OnInit {
         catch(e=>console.log("err: "+e));
   }
 
-  private makeChannelInfoFromBuffer(b:AudioBuffer, ix:number):ChannelInfo{
-    console.log("ix is: "+ix);
+  private makeChannelInfoFromBuffer(b: AudioBuffer, ix: number): ChannelInfo {
     let ti = this.songInfo.extra.tracks[ix];
-    console.log("track name ix is " + JSON.stringify(ti));
-    return new ChannelInfo( b, ti.name );
+    return new ChannelInfo(ix, b, ti.name );
   }
 
   finishedLoadingAllBuffers(loadedAudioBufferList) {

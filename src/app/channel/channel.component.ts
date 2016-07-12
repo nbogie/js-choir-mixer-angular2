@@ -1,6 +1,8 @@
 import { Component, OnInit, Input, ElementRef } from '@angular/core';
 import { ChannelInfo } from '../channel-info';
 import { FFTConfig, FFTType } from '../fft-config';
+import { CmdType, Command } from '../command';
+import { Subject } from 'rxjs/Subject';
 
 //TODO: separate out the visualiser from the channel
 
@@ -11,9 +13,11 @@ import { FFTConfig, FFTType } from '../fft-config';
   styleUrls: ['channel.component.css']
 })
 export class ChannelComponent implements OnInit {
-  
+
+  @Input() mixerSubject: Subject<Command>;
   @Input() channelInfo: ChannelInfo;
   @Input() context: AudioContext;
+
   isMuted: boolean = false;
   srcNode: AudioBufferSourceNode;
   gainNode: GainNode;
@@ -44,8 +48,26 @@ export class ChannelComponent implements OnInit {
     console.log("channel ctor");
   }
 
-  ngOnInit() {
-  }
+    ngOnInit() {
+        this.mixerSubject.subscribe(cmd => {
+            console.log("got event");
+            switch (cmd.type) {
+                case CmdType.ClearAll:
+                    this.clear();
+                    break;
+                case CmdType.MuteSome:
+                    console.log("clear some for channel ids: ", cmd.data);
+                    console.assert(cmd.data, "cmd.data should not be null");
+                    if (cmd.data.indexOf(this.channelInfo.id) >= 0) {
+                        this.mute();
+                    }
+                    break;
+                default:
+                    console.error("Unknown CmdType: "+ event + " in subscription");
+            }
+        }
+        );
+    }
 
   stop() {
     //gPlayStartedTime = -1;
@@ -71,11 +93,18 @@ export class ChannelComponent implements OnInit {
   }
 
   mute() {
+      this.isMuted = true;
       this.setGain(0); 
   }
 
   unmute() {
+      this.isMuted = false;
       this.setGain(1); //TODO: set it back to what the slider says it should be 
+  }
+  
+  clear() {
+      this.unmute();
+      this.setGain(1);
   }
 
   play() {
