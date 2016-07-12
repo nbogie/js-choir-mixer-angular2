@@ -1,6 +1,6 @@
 export class BufferLoader {
     urlList: string[];
-    onAllLoadedFn: (bs: AudioBuffer[]) => void; // a function
+    onAllLoadedFn: (bs: AudioBuffer[]) => void;
     bufferList: AudioBuffer[];
     loadCount: number = 0;
 
