@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, ElementRef } from '@angular/core';
+import { Component, OnInit, Input, AfterViewInit, ViewChild} from '@angular/core';
 import { ChannelInfo } from '../channel-info';
 import { FFTConfig, FFTType } from '../fft-config';
 import { CmdType, Command } from '../command';
@@ -12,7 +12,7 @@ import { Subject } from 'rxjs/Subject';
   templateUrl: 'channel.component.html',
   styleUrls: ['channel.component.css']
 })
-export class ChannelComponent implements OnInit {
+export class ChannelComponent implements OnInit, AfterViewInit {
 
   @Input() mixerSubject: Subject<Command>;
   @Input() channelInfo: ChannelInfo;
@@ -26,8 +26,9 @@ export class ChannelComponent implements OnInit {
   analyser: any;
   @Input() fftConfig:FFTConfig; 
   dataArray: Uint8Array;
-  canvasElem: any; //ElementRef?  height, width, getContext() don't exist on ElementRef, but on canvas...
-  useZeroCrossing: boolean;
+  useZeroCrossing: boolean = true;
+  canvasCtx:CanvasRenderingContext2D;
+  @ViewChild("visCanvas") visCanvas;
 
   _shouldPlay: boolean;
 
@@ -44,19 +45,15 @@ export class ChannelComponent implements OnInit {
       }
   }
   
-  constructor() {
-    console.log("channel ctor");
-  }
+  constructor() {}
 
     ngOnInit() {
         this.mixerSubject.subscribe(cmd => {
-            console.log("got event");
             switch (cmd.type) {
                 case CmdType.ClearAll:
                     this.clear();
                     break;
                 case CmdType.MuteSome:
-                    console.log("clear some for channel ids: ", cmd.data);
                     console.assert(cmd.data, "cmd.data should not be null");
                     if (cmd.data.indexOf(this.channelInfo.id) >= 0) {
                         this.mute();
@@ -68,6 +65,23 @@ export class ChannelComponent implements OnInit {
         }
         );
     }
+
+
+    //from this plunker: http://embed.plnkr.co/LFhOuepJrnPVlwUXmkUt/
+
+    ngAfterViewInit() {
+        let canvas = this.visCanvas.nativeElement;
+        this.canvasCtx = canvas.getContext("2d");
+        this.myTick();
+    }
+
+    myTick() {
+        // TODO: only mixer should call requestAnimFrame, and then delegate?
+        requestAnimationFrame( () => { this.myTick() });
+        //TODO: don't call draw when we're not playing (unless we need to clear it, once) 
+        this.drawVis();
+    }
+
 
   stop() {
     //gPlayStartedTime = -1;
@@ -108,10 +122,14 @@ export class ChannelComponent implements OnInit {
   }
 
   play() {
-      //TODO: deal with already playing. 
-      //  free the old nodes where necessary, 
-      //  create new ones, and 
-      //  start playing again
+
+      //TODO: deal with already playing: 
+      //  * free all old nodes as necessary, 
+      //  * create new ones, and 
+      //  * start playing again
+      //
+      //TODO: have the mixer tell us to start playing at a shortly future time
+      //      so that all channels start at once, regardless of any lag in event propagation.
       let src = this.context.createBufferSource();
       src.buffer = this.channelInfo.buffer;
       src.playbackRate.value = 1;
@@ -153,12 +171,14 @@ export class ChannelComponent implements OnInit {
     //TODO: update slider?
   }
   
-  drawVis() {
-      let canvasCtx = this.canvasElem.getContext('2d');
-      let canvasHeight = this.canvasElem.height;
-      let canvasWidth = this.canvasElem.width;
+    drawVis() {
+      let canvasCtx = this.canvasCtx;
+        
+      let canvasHeight = this.visCanvas.nativeElement.height;
+      let canvasWidth = this.visCanvas.nativeElement.width;
 
       let yOffset = 0;
+      
       //  canvasCtx.clearRect(0, 0, canvasWidth, canvasHeight);
       canvasCtx.fillStyle = 'white';
       canvasCtx.fillRect(0, 0, canvasWidth, canvasHeight);
@@ -172,7 +192,7 @@ export class ChannelComponent implements OnInit {
       let len = this.dataArray.length;
       let stripeWidth = canvasWidth / len;
       let vertScale = canvasHeight / 256;
-      let scaledVals = this.dataArray.map(v => scaledVals.push(v * vertScale))
+      let scaledVals = this.dataArray.map(v => v * vertScale);
 
       if (this.fftConfig.type == FFTType.Spectrum) {
           this.drawSpectrum(canvasCtx, scaledVals, stripeWidth, canvasWidth, canvasHeight, yOffset);
