@@ -9,6 +9,8 @@ import { ChannelInfo } from '../channel-info';
 import { Section } from '../section';
 import { FFTConfig } from '../fft-config';
 
+declare var _: any;
+
 @Component({
   moduleId: module.id,
   selector: 'app-mixer',
@@ -52,11 +54,21 @@ export class MixerComponent implements OnInit {
   }
   
   clear() {
-    console.log("todo: clear mix");
+    console.log("todo: implement clear mix");
+    this.channelInfos.forEach(ci => null);
   }
 
   randomise() {
-    console.log("todo: randomise mix");
+    console.log("randomise mix");
+    this.clear();
+    let numToMute: number = _.random(1, this.channelInfos.length-1);    
+    let channelsToMute: ChannelInfo[] = _.sample(this.channelInfos, numToMute);
+    channelsToMute.forEach(ci => console.log(`would mute: ${ci.name}`));
+    //channelsToMute.forEach(ci => ci.??? = true);
+      //TODO: how can we mute some channels?  we don't really have a good handle to them, other than the list of channelInfos
+      // and a channel component probably(*) can't watch for a change to only one property of its ChannelInfo object.
+      // we really want to just signal each relevant channel: "please mute yourself" 
+      //
   }
 
   choseSong(songInfo) {
@@ -75,7 +87,6 @@ export class MixerComponent implements OnInit {
           this.sections = json.sectionStarts || [];
         }).
         catch(e=>console.log("err: "+e));
-      
   }
 
   private makeChannelInfoFromBuffer(b:AudioBuffer, ix:number):ChannelInfo{
