@@ -314,59 +314,17 @@ function registerDOMControls() {
     $('#playbackRateSlider').on('input', function () {
         handleChangePlaybackRate(this);
     });
-    $('#playButton').on('click', function () {
-        play();
-    });
-    $('#pickSongButton').on('click', function () {
-        pickSong();
-    });
     $('#stopButton').on('click', function () {
         stopAndDestroyAll();
     });
     $('#snapshotButton').on('click', function () {
         snapshotTime();
     });
-    $('#clearButton').on('click', function () {
-        clearMix();
-    });
-    $('#randomiseButton').on('click', function () {
-        randomiseMix();
-    });
 }
 
-function createControlsInDOM(bufferList) {
-    bufferList.forEach(function (buf, i) {
-        makeControlsForTrack(buf, i);
-    });
-}
-
-function finishedLoadingFn(bufferList) {
-    gBufferList = bufferList;
-    // Create three sources and play them both together.
-    createAllGainedSourcesOnBuffers(bufferList);
-    createControlsInDOM(bufferList);
-
-    //play();
-}
 
 function wipeAllNodes() {
     gSourceAndGainPairs = [];
-}
-
-function linkThroughGain(src) {
-    var gainNode = gContext.createGain();
-    src.connect(gainNode);
-    gainNode.connect(gContext.destination);
-    gainNode.gain.value = 1;
-    return gainNode;
-}
-
-function getVolumeSliderValueForTrack(i) {
-    return getVolumeSliderValueFrom0To1($('#vol' + i).get()[0]);
-}
-
-function getVolumeSliderValueFrom0To1(elem) {
-    return (parseFloat(elem.value) / 100);
 }
 
 //TODO: integrate this quick hack
@@ -414,14 +372,6 @@ function stopAndDestroyAll() {
         wipeAllNodes();
     }
 }
-
-function setAllSourcesToLoop(shouldLoop) {
-    gSourceAndGainPairs.forEach(function (pair) {
-        pair.src.loop = shouldLoop;
-    });
-}
-
-
 
 
 
