@@ -56,12 +56,10 @@ export class MixerComponent implements OnInit {
     }
 
     clear() {
-        console.log("todo: implement clear mix");
         this.mixerSubject.next({ type: CmdType.ClearAll, data: null });
     }
 
     randomise() {
-        console.log("randomise mix");
         this.clear();
         let numToMute: number = _.random(1, this.channelInfos.length - 1);
         let channelsToMute: ChannelInfo[] = _.sample(this.channelInfos, numToMute);
