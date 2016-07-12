@@ -1,7 +1,7 @@
 export class BufferLoader {
     urlList: string[];
-    onAllLoadedFn: any; // a function
-    bufferList: any[];
+    onAllLoadedFn: (bs: AudioBuffer[]) => void; // a function
+    bufferList: AudioBuffer[];
     loadCount: number = 0;
 
     constructor(private mixer: any, private audioCtx: any, urlList: string[], allLoadedFn) {
