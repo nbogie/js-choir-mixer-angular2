@@ -1,4 +1,3 @@
-
 <div class="row text-center">
     <h1>Neill's Choir Mixer <i class="fa fa-music"></i></h1>
 </div>
@@ -7,50 +6,50 @@
 
 <template [ngIf]="isDoneChoosingSong">
 
-<div class="row text-center">
-    <p>Play multiple mp3s with web audio, point-marking, volume-mixing, looping, mute/solo groups... </p>
-    <h2>{{songTitle}}</h2>
-</div>
-
-
-<div class="row">
-
-    <div id="controlset" class="col-md-6 col-lg-8">
-        <app-channel *ngFor="let channelInfo of channelInfos" 
-            [channelInfo]="channelInfo"
-            [mixerSubject]="mixerSubject" 
-            [fftConfig]="fftConfig" 
-            [shouldPlay]="shouldPlay"
-            [audioCtx]="audioCtx">
-        </app-channel>
+    <div class="row text-center">
+        <p>Play multiple mp3s with web audio, point-marking, volume-mixing, looping, mute/solo groups... </p>
+        <h2>{{songTitle}}</h2>
     </div>
 
-    <div class="col-md-6 col-lg-4">
-        <div id="transportbuttons">
-            <ul class="list-unstyled">
-                <li>
-                    <button id="stopButton"      (click)="stop()"      class="btn btn-danger" ><i class="fa fa-stop"></i></button>
-                    <button id="playButton"      (click)="play()"      class="btn btn-primary"><i class="fa fa-play"></i></button>
-                    <button id="randomiseButton" (click)="randomise()" class="btn btn-default">Randomise <i class="fa fa-random"></i></button>
-                    <button id="clearButton"     (click)="clear()"     class="btn btn-default">Clear</button>
-                </li>
-            </ul>
+
+    <div class="row">
+
+        <div id="controlset" class="col-md-6 col-lg-8">
+            <app-channel *ngFor="let channelInfo of channelInfos" 
+                [channelInfo]="channelInfo"
+                [mixerSubject]="mixerSubject" 
+                [fftConfig]="fftConfig" 
+                [shouldPlay]="shouldPlay"
+                [audioCtx]="audioCtx">
+            </app-channel>
         </div>
+        
+        <div class="col-md-6 col-lg-4">
+            <div id="transportbuttons">
+                <ul class="list-unstyled">
+                    <li>
+                        <button id="stopButton"      (click)="stop()"      class="btn btn-danger" ><i class="fa fa-stop"></i></button>
+                        <button id="playButton"      (click)="play()"      class="btn btn-primary"><i class="fa fa-play"></i></button>
+                        <button id="randomiseButton" (click)="randomise()" class="btn btn-default">Randomise <i class="fa fa-random"></i></button>
+                        <button id="clearButton"     (click)="clear()"     class="btn btn-default">Clear</button>
+                    </li>
+                </ul>
+            </div>
 
-        <p>position:
-            <input id="positionSlider" type="range" min="0" max="100" value="100" step="0.3">
-            <input id="positionOutput" type="text" value="??" />
-            <input id="positionMonitor" type="text" value="??" />
-        </p>
+            <p>position:
+                <input id="positionSlider" type="range" min="0" max="100" value="100" step="0.3">
+                <input id="positionOutput" type="text" value="??" />
+                <input id="positionMonitor" type="text" value="??" />
+            </p>
 
-        <p>playbackRate:
-            <input id="playbackRateSlider" type="range" min="0.7" max="1.5" value="1" step="0.01">
-            <input id="playbackRateOutput" type="text" value="1" />
-        </p>
+            <p>playbackRate:
+                <input id="playbackRateSlider" type="range" min="0.7" max="1.5" value="1" step="0.01">
+                <input id="playbackRateOutput" type="text" value="1" />
+            </p>
 
-        <app-section-list (jumpRequest)="jumpRequested($event)" [sections]="sections"></app-section-list>
+            <app-section-list (jumpRequest)="jumpRequested($event)" [sections]="sections"></app-section-list>
 
-    </div> <!-- col-lg-8 -->
-  </div> <!-- row --> 
+        </div><!-- col-lg-8 -->
+    </div><!-- row -->
 
 </template>
