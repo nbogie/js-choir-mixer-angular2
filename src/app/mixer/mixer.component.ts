@@ -28,14 +28,12 @@ export class MixerComponent implements OnInit {
   audioCtx: AudioContext;
   bufferList: AudioBuffer[];
   allLoaded: boolean = false;
-  mixer: any; //hack. remove.
+  mixer: MixerComponent; //hack. remove.
   songTitle: string;
   songInfo: any; //parsed json
   sections: Section[];
   fftConfig: FFTConfig;
   shouldPlay: boolean = false;
-
-  that = this;
 
   constructor(private http: Http){
   }
