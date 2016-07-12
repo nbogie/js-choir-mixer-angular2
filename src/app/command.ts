@@ -1,6 +1,7 @@
 export enum CmdType {
     ClearAll = 1,
-    MuteSome
+    MuteSome,
+    JumpTo
 }
 //TODO: detail types for every command - don't use data: any.
 export class Command {

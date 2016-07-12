@@ -1,4 +1,4 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { Section } from '../section';
 
 @Component({
@@ -11,6 +11,7 @@ export class SectionListComponent implements OnInit {
 
     @Input() sectionName: string;
     @Input() sections: Section[];
+    @Output() jumpRequest = new EventEmitter<number>();
 
     constructor() { }
 
@@ -23,7 +24,6 @@ export class SectionListComponent implements OnInit {
     }
 
     clickedSection(section) {
-        console.log("clicked to go to " + section.time);
-
+        this.jumpRequest.emit(section.time);
     }
 }

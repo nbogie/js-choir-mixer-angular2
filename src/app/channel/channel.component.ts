@@ -59,6 +59,11 @@ export class ChannelComponent implements OnInit, AfterViewInit {
                         this.mute();
                     }
                     break;
+                case CmdType.JumpTo:
+                    console.assert(cmd.data, "cmd.data should not be null");
+                    let time: number = cmd.data;
+                    this.play(time);
+                    break;
                 default:
                     console.error("Unknown CmdType: " + event + " in subscription");
             }
@@ -87,6 +92,7 @@ export class ChannelComponent implements OnInit, AfterViewInit {
     stop() {
         //gPlayStartedTime = -1;
         //TODO: deal with not playing, or not even initialised.
+        //Do we need to hold onto the source node for a while after asking it to stop?        
         if (this.srcNode) {
             this.srcNode.stop(0);
             this.srcNode = null;//TODO: any recycling necessary to allow srcNode to be recycled
@@ -122,13 +128,34 @@ export class ChannelComponent implements OnInit, AfterViewInit {
         this.setGain(1);
     }
 
-    play() {
+    cleanUpExistingNodes() {
+        if (this.srcNode) {
+            this.srcNode.stop(0);
+            this.srcNode.disconnect();
+            this.srcNode = null;
+        }
+        if (this.gainNode) {
+            this.gainNode.disconnect();
+            this.gainNode = null;
+        }
+        if (this.analyser) {
+            this.analyser.disconnect();
+            this.analyser = null;
+        }
+        if (this.dataArray) {
+            this.dataArray = null;
+        }
+    }
 
+    play(timeOffset = 0) {
+
+        this.cleanUpExistingNodes();
         //TODO: deal with already playing: 
-        //  * free all old nodes as necessary, 
+        //  * stop src (if playing) and free all old nodes as necessary, 
         //  * create new ones, and 
         //  * start playing again
-        //
+        // DON'T release references to nodes which are still running!
+
         //TODO: have the mixer tell us to start playing at a shortly future time
         //      so that all channels start at once, regardless of any lag in event propagation.
         let src = this.audioCtx.createBufferSource();
@@ -149,8 +176,8 @@ export class ChannelComponent implements OnInit, AfterViewInit {
         let bufferLength = analyser.frequencyBinCount;
         let dataArray = new Uint8Array(bufferLength);
         gainNode.connect(analyser);
-
-        src.start();
+        //TODO: protect against times outwith the duration of the buffer
+        src.start(0, timeOffset);
 
         //store those elements we'll need to reference
         this.srcNode = src;
@@ -174,7 +201,7 @@ export class ChannelComponent implements OnInit, AfterViewInit {
 
     lengthOfBufferInSeconds() {
         //TODO: protect against uninitialised state
-       return this.srcNode.buffer.duration;
+        return this.srcNode.buffer.duration;
     }
 
     drawVis() {
@@ -243,7 +270,7 @@ export class ChannelComponent implements OnInit, AfterViewInit {
         canvasCtx.stroke();
     }
 
-    private drawWaveformAtZeroCrossing(canvasCtx, scaledVals: Uint8Array, step, w, h, yOffset, zeroCross:number) {
+    private drawWaveformAtZeroCrossing(canvasCtx, scaledVals: Uint8Array, step, w, h, yOffset, zeroCross: number) {
         canvasCtx.lineWidth = 3;
         canvasCtx.strokeStyle = 'rgb(0, 0, 0)';
         canvasCtx.beginPath();

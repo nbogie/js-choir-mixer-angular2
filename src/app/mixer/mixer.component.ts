@@ -99,5 +99,9 @@ export class MixerComponent implements OnInit {
         this.mixer.channelInfos = this.mixer.bufferList.map((b, ix) => this.mixer.makeChannelInfoFromBuffer(b, ix));
         //TODO: ping angular to refresh.  we've done this stuff out of zone, it seems
     }
-
+    
+    jumpRequested(time: number) {
+        console.log("mixer: jump requested to ", time);
+        this.mixerSubject.next({ type: CmdType.JumpTo, data: time });
+    }
 }
