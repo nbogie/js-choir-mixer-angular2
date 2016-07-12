@@ -4,7 +4,7 @@ export class BufferLoader {
   bufferList: any[]; 
   loadCount: number = 0;
   
-  constructor(private mixer: any, private context: any, urlList:string[], allLoadedFn) {
+  constructor(private mixer: any, private audioCtx: any, urlList:string[], allLoadedFn) {
     this.urlList = urlList;
     this.bufferList = new Array(urlList.length);//we'll store them in place as they come up.  
                                                 //A dictionary might be better.
@@ -20,7 +20,7 @@ export class BufferLoader {
 
     let loader = this;
     request.onload = function () {
-        loader.context.decodeAudioData(
+        loader.audioCtx.decodeAudioData(
             request.response, 
             (audioBuffer) => {
               console.log("one decode finished, for good or bad: "+audioBuffer);

@@ -25,7 +25,7 @@ export class MixerComponent implements OnInit {
   channelInfos: ChannelInfo[];
   mixerSubject: Subject<Command> = new Subject(); //to comm with children.
   bufferLoader: BufferLoader;
-  context: any;
+  audioCtx: AudioContext;
   bufferList: AudioBuffer[];
   allLoaded: boolean = false;
   mixer: any; //hack. remove.
@@ -45,7 +45,7 @@ export class MixerComponent implements OnInit {
     //console.log(window.AudioContext);
     //console.log(window.webkitAudioContext);
     //window.AudioContext = window.AudioContext||window.webkitAudioContext;
-    this.context = new AudioContext();
+    this.audioCtx = new AudioContext();
     this.fftConfig = FFTConfig.simpleConfig().waveform;
   }
 
@@ -82,7 +82,7 @@ export class MixerComponent implements OnInit {
           this.songTitle = json.title;
           this.songInfo.extra = json;
           let urlList = json.tracks.map(t => `${songInfo.root}${songInfo.name}/${t.name}`);
-          this.bufferLoader = new BufferLoader(this, this.context, urlList, this.finishedLoadingAllBuffers);
+          this.bufferLoader = new BufferLoader(this, this.audioCtx, urlList, this.finishedLoadingAllBuffers);
           this.bufferLoader.loadAll();
           this.sections = json.sectionStarts || [];
         }).

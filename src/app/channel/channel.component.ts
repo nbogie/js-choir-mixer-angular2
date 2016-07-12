@@ -16,7 +16,7 @@ export class ChannelComponent implements OnInit, AfterViewInit {
 
   @Input() mixerSubject: Subject<Command>;
   @Input() channelInfo: ChannelInfo;
-  @Input() context: AudioContext;
+  @Input() audioCtx: AudioContext;
 
   isMuted: boolean = false;
   srcNode: AudioBufferSourceNode;
@@ -130,20 +130,20 @@ export class ChannelComponent implements OnInit, AfterViewInit {
       //
       //TODO: have the mixer tell us to start playing at a shortly future time
       //      so that all channels start at once, regardless of any lag in event propagation.
-      let src = this.context.createBufferSource();
+      let src = this.audioCtx.createBufferSource();
       src.buffer = this.channelInfo.buffer;
       src.playbackRate.value = 1;
       src.loop = true;
 
-      let gainNode = this.context.createGain();
+      let gainNode = this.audioCtx.createGain();
       gainNode.gain.value = 1;
       
       src.connect(gainNode);
-      gainNode.connect(this.context.destination);
+      gainNode.connect(this.audioCtx.destination);
       
       //TODO: only the src node need by recreated on each play.
       //The rest just needs to be reconnected.
-      let analyser = this.context.createAnalyser();
+      let analyser = this.audioCtx.createAnalyser();
       analyser.fftSize = this.fftConfig.size;
       let bufferLength = analyser.frequencyBinCount;
       let dataArray = new Uint8Array(bufferLength);
@@ -166,7 +166,7 @@ export class ChannelComponent implements OnInit, AfterViewInit {
 
   setGain(v: number) {
     //TODO: don't allow if no gainNode or the channel is muted.
-    this.gainNode.gain.cancelScheduledValues(this.context.currentTime);
+    this.gainNode.gain.cancelScheduledValues(this.audioCtx.currentTime);
     this.gainNode.gain.value = v;
     //TODO: update slider?
   }
