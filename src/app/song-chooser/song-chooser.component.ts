@@ -13,7 +13,6 @@ export interface SongInfo {
     styleUrls: ['song-chooser.component.css']
 })
 export class SongChooserComponent implements OnInit {
-    isHidden: boolean = false;
     @Input() selectedSongName: string;
     songNames: string[];
     songInfos: SongInfo[];
@@ -52,7 +51,6 @@ export class SongChooserComponent implements OnInit {
         let selectedSongInfo = sis.find((si) => si.name == this.selectedSongName);
         if (selectedSongInfo) {
             this.choseSong.emit(selectedSongInfo);
-            this.isHidden = true;
         } else {
             //no song picked
             console.log("No (or unknown) song picked.");

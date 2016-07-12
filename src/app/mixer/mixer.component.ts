@@ -34,6 +34,7 @@ export class MixerComponent implements OnInit {
     sections: Section[];
     fftConfig: FFTConfig;
     shouldPlay: boolean = false;
+    isDoneChoosingSong: boolean = false;
 
     constructor(private http: Http) {
     }
@@ -81,6 +82,7 @@ export class MixerComponent implements OnInit {
                 this.bufferLoader = new BufferLoader(this, this.audioCtx, urlList, this.finishedLoadingAllBuffers);
                 this.bufferLoader.loadAll();
                 this.sections = json.sectionStarts || [];
+                this.isDoneChoosingSong = true;
             }).
             catch(e => console.log("err: " + e));
     }
