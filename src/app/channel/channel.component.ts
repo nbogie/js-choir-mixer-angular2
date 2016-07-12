@@ -23,7 +23,7 @@ export class ChannelComponent implements OnInit, AfterViewInit {
   gainNode: GainNode;
 
   //fft stuff
-  analyser: any;
+  analyser: AnalyserNode;
   @Input() fftConfig:FFTConfig; 
   dataArray: Uint8Array;
   useZeroCrossing: boolean = true;
