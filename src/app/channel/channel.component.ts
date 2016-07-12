@@ -172,6 +172,11 @@ export class ChannelComponent implements OnInit, AfterViewInit {
         //TODO: update slider?
     }
 
+    lengthOfBufferInSeconds() {
+        //TODO: protect against uninitialised state
+       return this.srcNode.buffer.duration;
+    }
+
     drawVis() {
         let canvasCtx = this.canvasCtx;
 

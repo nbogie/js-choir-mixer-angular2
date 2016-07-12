@@ -67,17 +67,6 @@ function initWithSongChoice(chosenSongInfo) {
         gSoloGroup = [];
         gIsPlaying = false;
         gContext = new AudioContext();
-        var fullTrackPaths = gTrackNames.map(function (n) {
-            return chosenSongInfo.root + chosenSongInfo.name + "/" + n;
-        });
-
-        var myBufferLoader = new BufferLoader(
-            gContext,
-            fullTrackPaths,
-            finishedLoadingFn
-        );
-
-        myBufferLoader.load();
 
         window.setInterval(function () {
             $("#positionMonitor").val(computeCurrentTrackTime().toFixed(1));
@@ -85,41 +74,7 @@ function initWithSongChoice(chosenSongInfo) {
 
         requestAnimationFrame(drawAllAnimsLoop);
     }
-
-    function handleJSON(response) {
-        var json = response;
-        gSongTitle = json.title || "Untitled";
-        $("#songTitle").html(gSongTitle);
-        gTrackNames = json.tracks.map(function (t) {
-            return t.name;
-        });
-        gSectionStarts = json.sectionStarts || [];
-        recreateSectionStartsInDOM();
-        finishInit();
-    }
-
-    $.getJSON(chosenSongInfo.fullpath, handleJSON);
-}
-
-function getTrailingDigit(elem, prefix) {
-    var l = prefix.length;
-    var numstr = elem.id.substring(l, l + 1);
-    return parseInt(numstr);
-}
-
-function getAllTrackIdsExcept(n) {
-    var arr = getAllTrackIds();
-    removeFromArray(arr, n);
-    return arr;
-}
-
-function getAllTrackIds() {
-    var n = gSourceAndGainPairs.length;
-    var ids = [];
-    for (var i = 0; i < n; i++) {
-        ids.push(i);
-    }
-    return ids;
+    //[...]
 }
 
 function getAllNonSoloTrackIds() {
@@ -244,38 +199,6 @@ function handleMuteButton(elem) {
     console.log("after: " + pair.gainNode.gain.value + " and classes " + elem.classList);
 }
 
-function createSourceOnBuffer(b) {
-    var src = gContext.createBufferSource();
-    src.playbackRate.value = 1;
-    src.buffer = b;
-    return src;
-}
-
-function createGainedSourceOnBuffer(b) {
-    var src = createSourceOnBuffer(b);
-    var analyser = gContext.createAnalyser();
-    analyser.fftSize = gFFTConfig.size;
-    var bufferLength = analyser.frequencyBinCount;
-    var dataArray = new Uint8Array(bufferLength);
-
-    var gainNode = linkThroughGain(src);
-    gainNode.connect(analyser);
-
-    return {
-        title: b,
-        src: src,
-        gainNode: gainNode,
-        analyser: analyser,
-        dataArray: dataArray
-    };
-}
-
-function createAllGainedSourcesOnBuffers(bufferList) {
-    gSourceAndGainPairs = bufferList.map(function (buf) {
-        return createGainedSourceOnBuffer(buf);
-    });
-}
-
 function simpleTrackName(i) {
     var input = gTrackNames[i];
     return input.substr(0, input.lastIndexOf('.')) || input;
@@ -381,28 +304,6 @@ function stopAndDestroyAll() {
 // ----------------------------------------------
 
 
-
-
-function drawAllAnimsLoop() {
-
-    if (!gIsPlaying) {
-        requestAnimationFrame(drawAllAnimsLoop);
-        return;
-    }
-    var sharedCanvas = document.getElementById('trackCanvas' + 0);
-    var canvasCtx = sharedCanvas.getContext('2d');
-    canvasCtx.fillStyle = 'white';
-    canvasCtx.fillRect(0, 0, sharedCanvas.width, sharedCanvas.height);
-
-    gSourceAndGainPairs.forEach(function (pair, i) {
-        drawOneFFT(pair.analyser, pair.dataArray, i);
-    });
-
-    gFrameNumber += 1;
-    requestAnimationFrame(drawAllAnimsLoop);
-}
-
-
 function play() {
     if (gIsPlaying) {
         stopAndDestroyAll();
@@ -425,12 +326,6 @@ function play() {
     gIsPlaying = true;
 }
 
-function setPlaybackRateForAllSources(r) {
-    gSourceAndGainPairs.forEach(function (pair) {
-        pair.src.playbackRate.value = r;
-    });
-}
-
 function computeCurrentTrackTime() {
     if (gPlayStartedTime < 0) {
         return -1;
@@ -449,24 +344,6 @@ function clearMix() {
         setVolumeSliderValueForTrack(id, 100);
         setTrackGainUsingSlider(id);
     });
-}
-
-function randomIntBetween(min, max) {
-    return Math.floor(Math.random() * (max - min + 1) + min);
-}
-
-function randomiseMix() {
-    clearMix();
-    var allTrackIds = getAllTrackIds();
-
-    function howManyTracksToInclude(totalNum) {
-        var min = Math.min(1, totalNum);
-        var max = Math.max(1, totalNum - 1);
-        return randomIntBetween(min, max);
-    }
-    var numTracksToInclude = howManyTracksToInclude(allTrackIds.length);
-    var trackIdsToMute = _.shuffle(allTrackIds).slice(numTracksToInclude);
-    trackIdsToMute.forEach(muteTrackNormally);
 }
 
 function snapshotTime() {
@@ -503,30 +380,7 @@ function jumpToSection(i) {
     //TODO: update slider to reflect new position
 }
 
-function recreateSectionStartsInDOM() {
-    $('#snapshots').html("");
 
-    function makeSnapshotElement(s, i) {
-        var timeText = "" + Math.round(s.time) + "s";
-        var labelSpan = $('<button/>', {
-            class: "btn btn-default btn-sm",
-            text: s.label + " @ " + timeText
-        });
-        var listItem = $('<li/>', {
-            class: "sectionStart",
-            id: "sectionStart" + i
-        });
-        listItem.append(labelSpan);
-        return listItem;
-    }
-
-    gSectionStarts.forEach(function (s, i) {
-        $('#snapshots').append(makeSnapshotElement(s, i));
-        $('#sectionStart' + i).on('click', function () {
-            jumpToSection(i);
-        });
-    });
-}
 
 function playPrevSectionStart() {}
 function cycleSoloPrevTrack() {}
