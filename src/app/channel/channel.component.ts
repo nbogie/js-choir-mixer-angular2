@@ -68,7 +68,7 @@ export class ChannelComponent implements OnInit, AfterViewInit {
 
 
     //from this plunker: http://embed.plnkr.co/LFhOuepJrnPVlwUXmkUt/
-
+    //we get an ElementRef to canvas via a ViewChild, and get the context.
     ngAfterViewInit() {
         let canvas = this.visCanvas.nativeElement;
         this.canvasCtx = canvas.getContext("2d");
@@ -76,9 +76,10 @@ export class ChannelComponent implements OnInit, AfterViewInit {
     }
 
     myTick() {
-        // TODO: only mixer should call requestAnimFrame, and then delegate?
+        // TODO: don't call draw when we're not playing (unless we need to clear it, once)
+
+        // TODO: only mixer should call requestAnimFrame, and then tell children to draw?
         requestAnimationFrame(() => { this.myTick() });
-        //TODO: don't call draw when we're not playing (unless we need to clear it, once) 
         this.drawVis();
     }
 
@@ -210,7 +211,7 @@ export class ChannelComponent implements OnInit, AfterViewInit {
         }
     }
 
-    private drawSpectrum(canvasCtx, scaledVals, stripeWidth: number, w: number, h: number, yOffset: number) {
+    private drawSpectrum(canvasCtx, scaledVals: Uint8Array, stripeWidth: number, w: number, h: number, yOffset: number) {
         canvasCtx.globalAlpha = 0.5;
 
         canvasCtx.fillStyle = 'rgb(255, 0, 0)';
@@ -219,7 +220,7 @@ export class ChannelComponent implements OnInit, AfterViewInit {
         });
     }
 
-    private drawWaveform(canvasCtx, scaledVals, step: number, w: number, h: number, yOffset: number) {
+    private drawWaveform(canvasCtx, scaledVals: Uint8Array, step: number, w: number, h: number, yOffset: number) {
         canvasCtx.lineWidth = 3;
         canvasCtx.strokeStyle = 'rgb(0, 0, 0)';
         canvasCtx.beginPath();
@@ -237,7 +238,7 @@ export class ChannelComponent implements OnInit, AfterViewInit {
         canvasCtx.stroke();
     }
 
-    private drawWaveformAtZeroCrossing(canvasCtx, scaledVals, step, w, h, yOffset, zeroCross) {
+    private drawWaveformAtZeroCrossing(canvasCtx, scaledVals: Uint8Array, step, w, h, yOffset, zeroCross:number) {
         canvasCtx.lineWidth = 3;
         canvasCtx.strokeStyle = 'rgb(0, 0, 0)';
         canvasCtx.beginPath();
@@ -260,7 +261,7 @@ export class ChannelComponent implements OnInit, AfterViewInit {
         return ((typeof arr.find(val => (Math.abs(128 - val) > threshold))) !== 'undefined');
     }
 
-    private findFirstPositiveZeroCrossing(buf, buflen) {
+    private findFirstPositiveZeroCrossing(buf: Uint8Array, buflen: number): number {
 
         let MINVAL = 134; // 128 == zero.  MINVAL is the "minimum detected signal" level.
 
