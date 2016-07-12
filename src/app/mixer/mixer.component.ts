@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ChannelComponent } from '../channel/';
 import { BufferLoader } from '../buffer-loader';
-import { SongChooserComponent } from '../song-chooser/';
+import { SongChooserComponent, SongInfo } from '../song-chooser/';
 import { SectionListComponent } from '../section-list/';
 import { Http } from '@angular/http';
 import 'rxjs/add/operator/toPromise';
@@ -69,7 +69,7 @@ export class MixerComponent implements OnInit {
         this.mixerSubject.next({ type: CmdType.MuteSome, data: idsToMute });
     }
 
-    choseSong(songInfo) {
+    choseSong(songInfo: SongInfo) {
         this.songInfo = songInfo;
         let fullPathToJSON = songInfo.fullpath;
         console.log("song chosen: " + JSON.stringify(fullPathToJSON));

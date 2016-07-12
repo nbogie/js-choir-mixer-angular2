@@ -1,5 +1,11 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 
+export interface SongInfo {
+    name: string;
+    fullpath: string;
+    root: string;
+}
+
 @Component({
     moduleId: module.id,
     selector: 'app-song-chooser',
@@ -10,8 +16,8 @@ export class SongChooserComponent implements OnInit {
     isHidden: boolean = false;
     @Input() selectedSongName: string;
     songNames: string[];
-    songInfos: any[];
-    @Output() choseSong = new EventEmitter<string>();
+    songInfos: SongInfo[];
+    @Output() choseSong = new EventEmitter<SongInfo>();
 
     private songDirsFree: string[] = ["close_to_me", "he_has_done_marvelous_things"];
     songDirs: string[] = ["deep_river", "as", "great_is_thy_faithfulness",
@@ -25,7 +31,7 @@ export class SongChooserComponent implements OnInit {
         this.songInfos = this.getSongInfos();
         this.songNames = this.songInfos.map(si => si.name);
     }
-    getSongInfos() {
+    getSongInfos() : SongInfo[] {
         let allSongInfos = [
             { names: this.songDirsFree, root: 'sounds-free/' },
             { names: this.songDirs, root: 'sounds/' }]
@@ -37,9 +43,10 @@ export class SongChooserComponent implements OnInit {
                         fullpath: (obj.root + name + "/index.json")
                     })
                 ));
-        return [].concat.apply([], allSongInfos);
+        return [].concat(...allSongInfos);
     }
 
+    
     pickSong() {
         let sis = this.getSongInfos();
         let selectedSongInfo = sis.find((si) => si.name == this.selectedSongName);
