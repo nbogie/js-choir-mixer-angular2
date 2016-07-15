@@ -1,7 +1,11 @@
-  <p class="sliderrow">
-      <label title="track-name.mp3">Track display-name here...</label>
-      <button class="mutebutton btn btn-default"><i class="fa fa-volume-off"></i></button>
-      <button class="solobutton btn btn-default"><i class="fa fa-headphones"></i></button>
-      <input  class="slider" type="range" value="100" min="0" max="100">
-      <canvas></canvas>
-  </p>
+<p class="sliderrow">
+    <label title="track-name.mp3">{{channelInfo.name}}</label>
+    <button (click)="muteButtonClicked()" class="mutebutton btn btn-default" 
+            [ngClass]="{ 'mutebutton-muted': isMuted }"><i class="fa fa-volume-off"></i></button>
+    <button (click)="soloButtonClicked() " class="solobutton btn btn-default"><i class="fa fa-headphones"></i></button>
+    <span>Started: </span><span>{{timeLastStarted | durationClock}}</span>
+    <span>Stopped: </span><span *ngIf="timeLastStopped" >{{timeLastStopped | durationClock}}</span>
+    <span>Slider val: </span><span>{{volumeSliderValue}}</span>    
+    <input  [(ngModel)]="volumeSliderValue" class="slider" type="range" value="100" min="0" max="100">
+    <canvas #visCanvas></canvas>
+</p>

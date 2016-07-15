@@ -1,0 +1,17 @@
+p.sliderrow>.solobutton-on
+{
+    background: #CCCCFF;
+}
+p.sliderrow>.mutebutton-muted
+{
+    background: #CC9999;
+}
+p.sliderrow>.mutebutton-muted-for-solo
+{
+    background: #cccccc;
+}
+
+canvas {
+    width: 100%;
+    height: 80px;
+}

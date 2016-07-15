@@ -1,0 +1,11 @@
+<div>
+    <h3>Section start links:</h3>
+    <input [(ngModel)]="sectionName" type="text" value="" class="btn btn-default" placeholder="section name..." />
+    <button (click)="markTime()" class="btn btn-warning">mark <i class="fa fa-flag"></i></button>
+
+    <ul class="list-unstyled">
+        <li *ngFor="let section of sectionsSorted" class="sectionStart">
+            <button (click)="clickedSection(section)" class="btn btn-default btn-block btn-sm">{{section.label }} @ {{ section.time | durationClock }}</button>
+        </li>
+    </ul>
+</div>

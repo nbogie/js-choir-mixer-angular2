@@ -29,6 +29,7 @@ var barrels = [
     'app/mixer',
     'app/channel',
     'app/song-chooser',
+    'app/section-list'
 ];
 var cliSystemConfigPackages = {};
 barrels.forEach(function (barrelName) {

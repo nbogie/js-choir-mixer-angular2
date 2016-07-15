@@ -28,5 +28,9 @@
       {  
          "name":"xylo.mp3"
       }
+   ],
+   "sectionStarts": [
+     {"time": 2, "label": "bar 3"},
+     {"time": 6, "label": "half-way point"}
    ]
 }
