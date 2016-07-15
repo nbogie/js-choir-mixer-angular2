@@ -5,6 +5,7 @@
     <button (click)="soloButtonClicked() " class="solobutton btn btn-default"><i class="fa fa-headphones"></i></button>
     <span>Started: </span><span>{{timeLastStarted | durationClock}}</span>
     <span>Stopped: </span><span *ngIf="timeLastStopped" >{{timeLastStopped | durationClock}}</span>
-    <input  (change)="volumeSliderChanged($event)" class="slider" type="range" value="100" min="0" max="100">
+    <span>Slider val: </span><span>{{volumeSliderValue}}</span>    
+    <input  [(ngModel)]="volumeSliderValue" class="slider" type="range" value="100" min="0" max="100">
     <canvas #visCanvas></canvas>
 </p>

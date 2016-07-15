@@ -25,6 +25,7 @@ export class ChannelComponent implements OnInit, AfterViewInit, PlayTimeProvider
     srcNode: AudioBufferSourceNode;
     gainNode: GainNode;
 
+    private _volumeSliderValue: number;
     timeLastStarted: number;
     timeLastStopped: number;
     isPlaying: boolean = false;
@@ -38,8 +39,31 @@ export class ChannelComponent implements OnInit, AfterViewInit, PlayTimeProvider
     @ViewChild("visCanvas") visCanvas;
 
     constructor() { }
+    
+    set volumeSliderValue(v:number) {
+        console.log("sliderval cjanged to : " + v);
+        console.assert(v >= 0 && v <= 100, "bad value: " + v);
+        this._volumeSliderValue = v;
+        if (this.gainNode) {
+            this.setGain(this.computeGainFromSliderAndMuteStates());
+        }
+    }
+    get volumeSliderValue() {
+        return this._volumeSliderValue;
+    }
+    
+    //TODO: consider muting, soloing, too.
+    computeGainFromSliderAndMuteStates() {
+        if (this.isMuted) {
+            return 0; 
+        } else {
+            return 1.0 * this._volumeSliderValue / 100;
+        }
+    }
 
-    ngOnInit() {        
+
+    ngOnInit() {    
+        this._volumeSliderValue = 100;    
         this.mixerSubject.subscribe(cmd => {
             switch (cmd.type) {
                 case CmdType.ClearAll:
@@ -92,8 +116,8 @@ export class ChannelComponent implements OnInit, AfterViewInit, PlayTimeProvider
             this.gainNode.disconnect();
             this.timeLastStopped = this.audioCtx.currentTime;
         } else {
-            this.timeLastStopped = 0;            
-            this.timeLastStarted = 0;            
+            this.timeLastStopped = null;
+            this.timeLastStarted = null;
         }
         this.isPlaying = false;
     }
@@ -118,7 +142,7 @@ export class ChannelComponent implements OnInit, AfterViewInit, PlayTimeProvider
 
     unmute() {
         this.isMuted = false;
-        this.setGain(1); //TODO: set it back to what the slider says it should be 
+        this.setGain(this.computeGainFromSliderAndMuteStates()); 
     }
 
     clear() {
@@ -163,7 +187,7 @@ export class ChannelComponent implements OnInit, AfterViewInit, PlayTimeProvider
         src.loop = true;
 
         let gainNode = this.audioCtx.createGain();
-        gainNode.gain.value = 1;
+        gainNode.gain.value = this.computeGainFromSliderAndMuteStates();
 
         src.connect(gainNode);
         gainNode.connect(this.audioCtx.destination);
@@ -185,12 +209,6 @@ export class ChannelComponent implements OnInit, AfterViewInit, PlayTimeProvider
         this.gainNode = gainNode;
         this.analyser = analyser;
         this.dataArray = dataArray;
-    }
-
-    volumeSliderChanged(ev) {
-        console.log(`volume slider changed to ${ev.target.value}`, ev);
-        console.assert(ev && ev.target && ev.target.value && ev.target.value >= 0 && ev.target.value <= 100, "null or bad value ev.target.value");
-        this.setGain(ev.target.value / 100 * 1.0);
     }
 
     setGain(v: number) {
