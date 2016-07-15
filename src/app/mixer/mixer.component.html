@@ -1,5 +1,5 @@
 <div class="row text-center">
-    <h1>Neill's Choir Mixer <i class="fa fa-music"></i></h1>
+    <h1>Neill's Choir Mixer <i (click)="toggleTestTone()" class="fa fa-music"></i></h1>
 </div>
 
 <app-song-chooser *ngIf="!isDoneChoosingSong" (choseSong)="choseSong($event)"></app-song-chooser>

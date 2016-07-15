@@ -35,7 +35,9 @@ export class MixerComponent implements OnInit {
     fftConfig: FFTConfig;
     shouldPlay: boolean = false;
     isDoneChoosingSong: boolean = false;
-
+    testOsc: OscillatorNode;
+    testSynth: { gainNode: GainNode, osc: OscillatorNode } = null ;
+    
     constructor(private http: Http) {
     }
 
@@ -47,6 +49,32 @@ export class MixerComponent implements OnInit {
         this.audioCtx = new AudioContext();
         this.fftConfig = FFTConfig.simpleConfig().waveform;
     }
+    
+    setupTestOsc() {
+        let ctx: AudioContext = this.audioCtx;
+        
+        let oscillator = ctx.createOscillator();
+        oscillator.frequency.value = 40; 
+        oscillator.type = "sine";
+        let gainNode: GainNode = ctx.createGain();
+        gainNode.gain.value = 0.3;        
+        gainNode.connect(ctx.destination);
+        oscillator.connect(gainNode);
+        oscillator.start(0);
+        gainNode.gain.setTargetAtTime(0, ctx.currentTime, 0.2);
+        oscillator.frequency.setTargetAtTime(1760, ctx.currentTime, 0.4); 
+        this.testSynth = { osc: oscillator, gainNode: gainNode };
+    }
+
+    destroyTestOsc() {
+        console.log("destroy test osc");
+        this.testSynth.gainNode.disconnect();
+        this.testSynth.gainNode = null;
+        this.testSynth.osc.stop();
+        this.testSynth.osc.disconnect();
+        this.testSynth.osc = null;
+        this.testSynth = null;
+    }
 
     play() {
         this.shouldPlay = true;
@@ -54,6 +82,14 @@ export class MixerComponent implements OnInit {
 
     stop() {
         this.shouldPlay = false;
+    }
+
+    toggleTestTone() {
+        if (this.testSynth) {
+            this.destroyTestOsc();
+        } else {
+            this.setupTestOsc();
+        };
     }
 
     clear() {
