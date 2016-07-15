@@ -10,6 +10,7 @@ import { Section } from '../section';
 import { FFTConfig } from '../fft-config';
 import { CmdType, Command } from '../command';
 import { Subject } from 'rxjs/Subject';
+import { SynthSimple } from '../synth-simple';
 
 
 declare var _: any;
@@ -36,7 +37,7 @@ export class MixerComponent implements OnInit {
     shouldPlay: boolean = false;
     isDoneChoosingSong: boolean = false;
     testOsc: OscillatorNode;
-    testSynth: { gainNode: GainNode, osc: OscillatorNode } = null ;
+    testSynth: SynthSimple;
     
     constructor(private http: Http) {
     }
@@ -48,34 +49,9 @@ export class MixerComponent implements OnInit {
         //window.AudioContext = window.AudioContext||window.webkitAudioContext;
         this.audioCtx = new AudioContext();
         this.fftConfig = FFTConfig.simpleConfig().waveform;
+        this.testSynth = new SynthSimple(this.audioCtx);
     }
     
-    setupTestOsc() {
-        let ctx: AudioContext = this.audioCtx;
-        
-        let oscillator = ctx.createOscillator();
-        oscillator.frequency.value = 40; 
-        oscillator.type = "sine";
-        let gainNode: GainNode = ctx.createGain();
-        gainNode.gain.value = 0.3;        
-        gainNode.connect(ctx.destination);
-        oscillator.connect(gainNode);
-        oscillator.start(0);
-        gainNode.gain.setTargetAtTime(0, ctx.currentTime, 0.2);
-        oscillator.frequency.setTargetAtTime(1760, ctx.currentTime, 0.4); 
-        this.testSynth = { osc: oscillator, gainNode: gainNode };
-    }
-
-    destroyTestOsc() {
-        console.log("destroy test osc");
-        this.testSynth.gainNode.disconnect();
-        this.testSynth.gainNode = null;
-        this.testSynth.osc.stop();
-        this.testSynth.osc.disconnect();
-        this.testSynth.osc = null;
-        this.testSynth = null;
-    }
-
     play() {
         this.shouldPlay = true;
     }
@@ -85,11 +61,7 @@ export class MixerComponent implements OnInit {
     }
 
     toggleTestTone() {
-        if (this.testSynth) {
-            this.destroyTestOsc();
-        } else {
-            this.setupTestOsc();
-        };
+        this.testSynth.togglePlay();
     }
 
     clear() {
