@@ -1,10 +1,12 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { Section } from '../section';
 import { PlayTimeProvider } from '../play-time-provider';
+import { DurationClockPipe } from '../duration-clock.pipe';
 
 @Component({
     moduleId: module.id,
     selector: 'app-section-list',
+    pipes: [DurationClockPipe],
     templateUrl: 'section-list.component.html',
     styleUrls: ['section-list.component.css']
 })
@@ -18,6 +20,24 @@ export class SectionListComponent implements OnInit {
     
     constructor() { }
 
+    get sectionsSorted(): Section[] {
+        let cp = this.sections.slice();
+        return cp.sort((sA, sB) => { 
+            let a = sA.time;
+            let b = sB.time;
+            
+            if (a > b) { 
+                return 1; 
+            } else if (a == b) {
+                return 0;
+            }
+            else { 
+                return -1;
+            }
+        });
+    }
+
+
     ngOnInit() {
     }
 
@@ -27,7 +47,8 @@ export class SectionListComponent implements OnInit {
         console.log(this.playTimeProvider);
         console.log(this.playTimeProvider.currentPlayTime());
         
-        this.sections.push({label: this.sectionName, time: this.playTimeProvider.currentPlayTime()});           
+        this.sections.push({label: this.sectionName, time: this.playTimeProvider.currentPlayTime()});
+        this.sectionName = "";           
     }
 
     clickedSection(section) {

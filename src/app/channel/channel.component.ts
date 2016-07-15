@@ -3,6 +3,8 @@ import { ChannelInfo } from '../channel-info';
 import { FFTConfig, FFTType } from '../fft-config';
 import { CmdType, Command } from '../command';
 import { Subject } from 'rxjs/Subject';
+import { PlayTimeProvider } from '../play-time-provider';
+import { DurationClockPipe } from '../duration-clock.pipe';
 
 //TODO: separate out the visualiser from the channel
 
@@ -10,9 +12,10 @@ import { Subject } from 'rxjs/Subject';
     moduleId: module.id,
     selector: 'app-channel',
     templateUrl: 'channel.component.html',
+    pipes: [DurationClockPipe],
     styleUrls: ['channel.component.css']
 })
-export class ChannelComponent implements OnInit, AfterViewInit {
+export class ChannelComponent implements OnInit, AfterViewInit, PlayTimeProvider {
 
     @Input() mixerSubject: Subject<Command>;
     @Input() channelInfo: ChannelInfo;
@@ -21,6 +24,10 @@ export class ChannelComponent implements OnInit, AfterViewInit {
     isMuted: boolean = false;
     srcNode: AudioBufferSourceNode;
     gainNode: GainNode;
+
+    timeLastStarted: number;
+    timeLastStopped: number;
+    isPlaying: boolean = false;
 
     //fft stuff
     analyser: AnalyserNode;
@@ -31,13 +38,13 @@ export class ChannelComponent implements OnInit, AfterViewInit {
     @ViewChild("visCanvas") visCanvas;
 
     _shouldPlay: boolean;
-
-    @Input() set shouldPlay(v: boolean) {
+    //TODO: this only detects changes, so pressing stop twice (or play twice) will only send once.
+    @Input() set shouldPlay(v: boolean) {        
         if (v && !this._shouldPlay) {
             this._shouldPlay = true;
             //TODO: not all of the inputs may yet have been set for first time! 
             this.play();
-        } else {
+        } else { //it was a 'stop'
             if (this._shouldPlay) {
                 this._shouldPlay = false;
                 this.stop();
@@ -47,7 +54,7 @@ export class ChannelComponent implements OnInit, AfterViewInit {
 
     constructor() { }
 
-    ngOnInit() {
+    ngOnInit() {        
         this.mixerSubject.subscribe(cmd => {
             switch (cmd.type) {
                 case CmdType.ClearAll:
@@ -95,11 +102,19 @@ export class ChannelComponent implements OnInit, AfterViewInit {
         //Do we need to hold onto the source node for a while after asking it to stop?        
         if (this.srcNode) {
             this.srcNode.stop(0);
-            this.srcNode = null;//TODO: any recycling necessary to allow srcNode to be recycled
+            this.srcNode = null; //TODO: any recycling necessary to allow srcNode to be recycled
             //gain node maybe still holding onto it, or destination...
             this.gainNode.disconnect();
+            this.timeLastStopped = this.audioCtx.currentTime;
         }
+        this.isPlaying = false;
     }
+    resetToZero() {
+        console.log("reset to zero");
+        this.timeLastStopped = 0;            
+        this.timeLastStarted = 0;            
+    }
+
     muteButtonClicked() {
         this.isMuted = !this.isMuted;
         if (this.isMuted) {
@@ -155,7 +170,7 @@ export class ChannelComponent implements OnInit, AfterViewInit {
         //  * create new ones, and 
         //  * start playing again
         // DON'T release references to nodes which are still running!
-
+        
         //TODO: have the mixer tell us to start playing at a shortly future time
         //      so that all channels start at once, regardless of any lag in event propagation.
         let src = this.audioCtx.createBufferSource();
@@ -178,7 +193,9 @@ export class ChannelComponent implements OnInit, AfterViewInit {
         gainNode.connect(analyser);
         //TODO: protect against times outwith the duration of the buffer
         src.start(0, timeOffset);
-
+        
+        this.isPlaying = true;
+        this.timeLastStarted = this.audioCtx.currentTime;
         //store those elements we'll need to reference
         this.srcNode = src;
         this.gainNode = gainNode;
@@ -337,5 +354,19 @@ export class ChannelComponent implements OnInit, AfterViewInit {
 
         return last_zero;
     }
-
+    //return time in seconds of where we are in the loop.
+    //when a channel loops the time should count up from 0sec again.
+    currentPlayTime() {
+        if (this.isPlaying) {
+            //TODO: consider also that we may not have started at the start
+            //TODO: consider we may not have been playing back at 1.0x speed.
+            return (this.audioCtx.currentTime - this.timeLastStarted) % this.channelInfo.buffer.duration;
+        } else {
+            if (this.timeLastStopped) {
+                return this.timeLastStopped - this.timeLastStarted;
+            } else {
+                return 0;  //never been stopped, and not currently playing.
+            }             
+        }
+    }
 }

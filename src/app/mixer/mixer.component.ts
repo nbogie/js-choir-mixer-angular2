@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChildren, QueryList } from '@angular/core';
 import { ChannelComponent } from '../channel/';
 import { BufferLoader } from '../buffer-loader';
 import { SongChooserComponent, SongInfo } from '../song-chooser/';
@@ -43,6 +43,8 @@ export class MixerComponent implements OnInit, PlayTimeProvider {
     constructor(private http: Http) {
     }
 
+    @ViewChildren(ChannelComponent) channelChildren:QueryList<ChannelComponent>;
+
     ngOnInit() {
         ////TODO necessary for some browsers?
         //console.log(window.AudioContext);
@@ -54,6 +56,11 @@ export class MixerComponent implements OnInit, PlayTimeProvider {
         this.playTimeProvider = this;
     }
     
+      ngAfterViewInit() {
+        // channelChildren are set now
+        //this.channelChildren.toArray().forEach((child)=>child.doSomething());
+    }
+
     play() {
         this.shouldPlay = true;
     }
@@ -116,8 +123,10 @@ export class MixerComponent implements OnInit, PlayTimeProvider {
         console.log("mixer: jump requested to ", time);
         this.mixerSubject.next({ type: CmdType.JumpTo, data: time });
     }
+
     currentPlayTime(): number {
-        //TODO: defend
-        return this.channelInfos[0].buffer.duration;
+        //TODO: defend        
+        let c = this.channelChildren.toArray()[0];
+        return c.currentPlayTime();        
     }
 }

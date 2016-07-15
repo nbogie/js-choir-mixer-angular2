@@ -4,8 +4,8 @@
     <button (click)="markTime()" class="btn btn-warning">mark <i class="fa fa-flag"></i></button>
 
     <ul class="list-unstyled">
-        <li *ngFor="let section of sections" class="sectionStart">
-            <button (click)="clickedSection(section)" class="btn btn-default btn-block btn-sm">{{section.label }} @ {{ section.time }}</button>
+        <li *ngFor="let section of sectionsSorted" class="sectionStart">
+            <button (click)="clickedSection(section)" class="btn btn-default btn-block btn-sm">{{section.label }} @ {{ section.time | durationClock }}</button>
         </li>
     </ul>
 </div>
