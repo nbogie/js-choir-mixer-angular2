@@ -36,9 +36,7 @@
             </div>
 
             <p>position:
-                <input id="positionSlider" type="range" min="0" max="100" value="100" step="0.3">
-                <input id="positionOutput" type="text" value="??" />
-                <input id="positionMonitor" type="text" value="??" />
+                <input id="positionSlider" [(ngModel)]="positionSliderValue" type="range" min="0" max="100" value="100" step="0.3">                                
             </p>
 
             <p>playbackRate:

@@ -39,6 +39,19 @@ export class MixerComponent implements OnInit, PlayTimeProvider {
     testSynth: SynthSimple;
     playTimeProvider: PlayTimeProvider;
 
+    _positionSliderValue: number;
+
+    //TODO: use @Input() decorator?
+    set positionSliderValue(v: number) {
+        //TODO: is this a job for a observable with throttling?
+        //TODO: DON'T SPAM!
+        this.channelChildren.forEach(c => c.changePlayPosition(v/100.0));
+    }
+
+    get positionSliderValue() {
+        return this._positionSliderValue;
+    }
+    
     constructor(private http: Http) {
     }
 

@@ -361,6 +361,15 @@ export class ChannelComponent implements OnInit, AfterViewInit, PlayTimeProvider
 
         return last_zero;
     }
+    duration() {
+        return this.channelInfo.buffer.duration;
+    }
+    
+    changePlayPosition(frac) {
+        let intendedPos = frac * this.duration();
+        this.play(intendedPos);
+    }
+
     //return time in seconds of where we are in the loop.
     //when a channel loops the time should count up from 0sec again.
     currentPlayTime() {
