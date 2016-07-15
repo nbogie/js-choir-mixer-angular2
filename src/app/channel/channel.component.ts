@@ -37,21 +37,6 @@ export class ChannelComponent implements OnInit, AfterViewInit, PlayTimeProvider
     canvasCtx: CanvasRenderingContext2D;
     @ViewChild("visCanvas") visCanvas;
 
-    _shouldPlay: boolean;
-    //TODO: this only detects changes, so pressing stop twice (or play twice) will only send once.
-    @Input() set shouldPlay(v: boolean) {        
-        if (v && !this._shouldPlay) {
-            this._shouldPlay = true;
-            //TODO: not all of the inputs may yet have been set for first time! 
-            this.play();
-        } else { //it was a 'stop'
-            if (this._shouldPlay) {
-                this._shouldPlay = false;
-                this.stop();
-            }
-        }
-    }
-
     constructor() { }
 
     ngOnInit() {        
@@ -97,6 +82,7 @@ export class ChannelComponent implements OnInit, AfterViewInit, PlayTimeProvider
 
 
     stop() {
+        console.log("channel told to stop");
         //gPlayStartedTime = -1;
         //TODO: deal with not playing, or not even initialised.
         //Do we need to hold onto the source node for a while after asking it to stop?        
@@ -106,13 +92,11 @@ export class ChannelComponent implements OnInit, AfterViewInit, PlayTimeProvider
             //gain node maybe still holding onto it, or destination...
             this.gainNode.disconnect();
             this.timeLastStopped = this.audioCtx.currentTime;
+        } else {
+            this.timeLastStopped = 0;            
+            this.timeLastStarted = 0;            
         }
         this.isPlaying = false;
-    }
-    resetToZero() {
-        console.log("reset to zero");
-        this.timeLastStopped = 0;            
-        this.timeLastStarted = 0;            
     }
 
     muteButtonClicked() {
@@ -163,8 +147,15 @@ export class ChannelComponent implements OnInit, AfterViewInit, PlayTimeProvider
     }
 
     play(timeOffset = 0) {
-
-        this.cleanUpExistingNodes();
+        console.log("channel told to play at " + timeOffset);
+        //visualiser may be trying to draw the analyser while this is happening!
+        this.cleanUpExistingNodes();  
+        if (timeOffset === 0) {
+            if (this.timeLastStopped) {
+                timeOffset = (this.timeLastStopped - this.timeLastStarted) % this.channelInfo.buffer.duration;
+                console.log("previously stopped, so resume at " + timeOffset);
+            }
+        }
         //TODO: deal with already playing: 
         //  * stop src (if playing) and free all old nodes as necessary, 
         //  * create new ones, and 
@@ -222,6 +213,11 @@ export class ChannelComponent implements OnInit, AfterViewInit, PlayTimeProvider
     }
 
     drawVis() {
+        if (!this.analyser) {
+            //perhaps the analyser node is currently being replaced, or we're stopped.
+            return; 
+        }
+
         let canvasCtx = this.canvasCtx;
 
         let canvasHeight = this.visCanvas.nativeElement.height;

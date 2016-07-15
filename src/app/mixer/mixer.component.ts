@@ -34,7 +34,6 @@ export class MixerComponent implements OnInit, PlayTimeProvider {
     songInfo: any; //parsed json
     sections: Section[];
     fftConfig: FFTConfig;
-    shouldPlay: boolean = false;
     isDoneChoosingSong: boolean = false;
 
     testSynth: SynthSimple;
@@ -62,11 +61,11 @@ export class MixerComponent implements OnInit, PlayTimeProvider {
     }
 
     play() {
-        this.shouldPlay = true;
+        this.channelChildren.forEach(c => c.play());
     }
 
     stop() {
-        this.shouldPlay = false;
+        this.channelChildren.forEach(c => c.stop());
     }
 
     toggleTestTone() {
