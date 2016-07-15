@@ -82,7 +82,6 @@ export class ChannelComponent implements OnInit, AfterViewInit, PlayTimeProvider
 
 
     stop() {
-        console.log("channel told to stop");
         //gPlayStartedTime = -1;
         //TODO: deal with not playing, or not even initialised.
         //Do we need to hold onto the source node for a while after asking it to stop?        
@@ -147,15 +146,9 @@ export class ChannelComponent implements OnInit, AfterViewInit, PlayTimeProvider
     }
 
     play(timeOffset = 0) {
-        console.log("channel told to play at " + timeOffset);
+        console.assert(timeOffset >= 0, "timeOffset must be non-negative");
         //visualiser may be trying to draw the analyser while this is happening!
         this.cleanUpExistingNodes();  
-        if (timeOffset === 0) {
-            if (this.timeLastStopped) {
-                timeOffset = (this.timeLastStopped - this.timeLastStarted) % this.channelInfo.buffer.duration;
-                console.log("previously stopped, so resume at " + timeOffset);
-            }
-        }
         //TODO: deal with already playing: 
         //  * stop src (if playing) and free all old nodes as necessary, 
         //  * create new ones, and 
