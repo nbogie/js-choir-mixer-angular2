@@ -11,7 +11,7 @@ import { FFTConfig } from '../fft-config';
 import { CmdType, Command } from '../command';
 import { Subject } from 'rxjs/Subject';
 import { SynthSimple } from '../synth-simple';
-
+import { PlayTimeProvider } from '../play-time-provider';
 
 declare var _: any;
 
@@ -22,7 +22,7 @@ declare var _: any;
     templateUrl: 'mixer.component.html',
     styleUrls: ['mixer.component.css']
 })
-export class MixerComponent implements OnInit {
+export class MixerComponent implements OnInit, PlayTimeProvider {
     channelInfos: ChannelInfo[];
     mixerSubject: Subject<Command> = new Subject(); //to comm with children.
     bufferLoader: BufferLoader;
@@ -36,9 +36,10 @@ export class MixerComponent implements OnInit {
     fftConfig: FFTConfig;
     shouldPlay: boolean = false;
     isDoneChoosingSong: boolean = false;
-    testOsc: OscillatorNode;
+
     testSynth: SynthSimple;
-    
+    playTimeProvider: PlayTimeProvider;
+
     constructor(private http: Http) {
     }
 
@@ -50,6 +51,7 @@ export class MixerComponent implements OnInit {
         this.audioCtx = new AudioContext();
         this.fftConfig = FFTConfig.simpleConfig().waveform;
         this.testSynth = new SynthSimple(this.audioCtx);
+        this.playTimeProvider = this;
     }
     
     play() {
@@ -113,5 +115,9 @@ export class MixerComponent implements OnInit {
     jumpRequested(time: number) {
         console.log("mixer: jump requested to ", time);
         this.mixerSubject.next({ type: CmdType.JumpTo, data: time });
+    }
+    currentPlayTime(): number {
+        //TODO: defend
+        return this.channelInfos[0].buffer.duration;
     }
 }

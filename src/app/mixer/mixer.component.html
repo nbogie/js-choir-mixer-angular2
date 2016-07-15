@@ -47,7 +47,7 @@
                 <input id="playbackRateOutput" type="text" value="1" />
             </p>
 
-            <app-section-list (jumpRequest)="jumpRequested($event)" [sections]="sections"></app-section-list>
+            <app-section-list (jumpRequest)="jumpRequested($event)" [playTimeProvider]="playTimeProvider" [sections]="sections"></app-section-list>
 
         </div><!-- col-lg-8 -->
     </div><!-- row -->
